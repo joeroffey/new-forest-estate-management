@@ -28,24 +28,25 @@ Do these in order. Each step says exactly where to click.
 1. Create an account at [resend.com](https://resend.com).
 2. **Domains → Add domain** → `newforestestatemanagement.co.uk`. Resend shows some DNS records; add them where the domain is managed (currently GoDaddy), then press **Verify**. This can take up to an hour.
 3. **API Keys → Create API key** (Sending access). Copy it.
+4. While the domain is still verifying, you can set `EMAIL_FROM` to `onboarding@resend.dev` in Vercel. Resend then only delivers to your own Resend account email, which is enough to create your admin login. Switch it back once the domain shows **Verified**.
 
 ### 3. Vercel (hosting)
 
-In the Vercel project, open **Settings → Environment Variables** and add (see `.env.example`):
+The Vercel project **new-forest-estate-management** is already created and connected to this GitHub repo: every push to `main` deploys automatically. `EMAIL_FROM` and `GREENAPI_API_URL` are already filled in.
+
+Open the project in Vercel → **Settings → Environment Variables** and add these (tick Production, Preview and Development):
 
 | Name | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `https://www.newforestestatemanagement.co.uk` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon / publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service_role / secret key (**keep private**) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service_role / secret key (**keep private**, mark as Sensitive) |
 | `ADMIN_SETUP_EMAIL` | The email address for the first admin login |
-| `RESEND_API_KEY` | From Resend |
-| `EMAIL_FROM` | `New Forest Estate Management <bookings@newforestestatemanagement.co.uk>` |
+| `RESEND_API_KEY` | From Resend (mark as Sensitive) |
 
-Then **Deployments → ••• → Redeploy**.
+Then **Deployments → the latest one → ••• → Redeploy**. Until the domain is switched over you can use the site at `https://new-forest-estate-management.vercel.app` while logged in to Vercel.
 
-To use the real domain: **Settings → Domains → Add** `newforestestatemanagement.co.uk` and `www.newforestestatemanagement.co.uk`, then copy the DNS records Vercel shows into GoDaddy. The old GoDaddy site stops showing once DNS switches over.
+**Going live on your domain:** **Settings → Domains → Add** `newforestestatemanagement.co.uk` and `www.newforestestatemanagement.co.uk`, then copy the DNS records Vercel shows into GoDaddy. The old GoDaddy site stops showing once DNS switches over. Email links always use whichever address the site is opened on, so nothing else needs changing.
 
 ### 4. Your admin login
 
