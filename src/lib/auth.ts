@@ -1,23 +1,38 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Customer, Profile } from "@/lib/types";
 
+export interface AuthUser {
+  id: string;
+  email: string | null;
+}
+
 export interface Viewer {
-  user: User;
+  user: AuthUser;
   profile: Profile;
 }
 
+/**
+ * The signed-in user, read from the login session and checked against Supabase's signing
+ * keys (no round trip to the auth server when the project uses asymmetric keys, which it
+ * does). Cached per request.
+ */
+export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (error || !claims?.sub) return null;
+  return { id: claims.sub, email: typeof claims.email === "string" && claims.email ? claims.email : null };
+});
+
 /** The signed-in user and their profile, or null. Cached per request. */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) return null;
 
+  const supabase = await createClient();
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (!profile) return null;
   return { user, profile: profile as Profile };
@@ -33,16 +48,17 @@ export async function requireAdmin(): Promise<Viewer> {
 
 /** Use at the top of every customer page and customer server action. */
 export const requireCustomer = cache(async (): Promise<Viewer & { customer: Customer }> => {
-  const viewer = await getViewer();
+  const user = await getAuthUser();
+  if (!user) redirect("/login?next=/portal");
+
+  // Profile and customer record are looked up together rather than one after the other.
+  const supabase = await createClient();
+  const [viewer, { data: customer }] = await Promise.all([
+    getViewer(),
+    supabase.from("customers").select("*").eq("user_id", user.id).maybeSingle(),
+  ]);
   if (!viewer) redirect("/login?next=/portal");
   if (viewer.profile.role === "admin") redirect("/admin");
-
-  const supabase = await createClient();
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("*")
-    .eq("user_id", viewer.user.id)
-    .maybeSingle();
   if (!customer || (customer as Customer).archived) {
     redirect("/login?error=no-account");
   }

@@ -25,9 +25,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims refreshes an expired session and verifies the login token against Supabase's
+  // published signing keys locally, so this doesn't wait on the auth server for every click.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? data.claims : null;
 
   const path = request.nextUrl.pathname;
   const isProtected = path.startsWith("/admin") || path.startsWith("/portal");
