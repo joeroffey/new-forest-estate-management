@@ -46,7 +46,14 @@ Open the project in Vercel → **Settings → Environment Variables** and add th
 
 Then **Deployments → the latest one → ••• → Redeploy**. Until the domain is switched over you can use the site at `https://new-forest-estate-management.vercel.app` while logged in to Vercel.
 
-**Going live on your domain:** **Settings → Domains → Add** `newforestestatemanagement.co.uk` and `www.newforestestatemanagement.co.uk`, then copy the DNS records Vercel shows into GoDaddy. The old GoDaddy site stops showing once DNS switches over. Email links always use whichever address the site is opened on, so nothing else needs changing.
+**Going live on your domain:** both addresses are already added in Vercel (**Settings → Domains**): `www.newforestestatemanagement.co.uk` is the main address and `newforestestatemanagement.co.uk` redirects to it. In GoDaddy's DNS, change only these two records (leave the MX, email and Resend records alone):
+
+| Type | Name | Value |
+|---|---|---|
+| A | `@` | `216.198.79.1` (delete the old A records first) |
+| CNAME | `www` | `4d27d369d0cce0b4.vercel-dns-017.com` |
+
+If GoDaddy won't let you edit the `@` record, disconnect the old GoDaddy Website Builder site from the domain first. The old site stops showing once DNS switches over (usually within an hour). Then verify the domain in Google Search Console, submit `https://www.newforestestatemanagement.co.uk/sitemap.xml`, and update the website link on the Google Business Profile.
 
 ### 4. Your admin login
 
