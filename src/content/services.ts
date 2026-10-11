@@ -264,6 +264,12 @@ export const SERVICES: Service[] = [
         ],
       },
       {
+        heading: "Always knowing where things stand",
+        body: [
+          "We keep you informed about rent received, the condition of the building and any work that's needed. Routine matters are dealt with as agreed, and we come to you before committing to anything significant, so there are no surprises.",
+        ],
+      },
+      {
         heading: "A local team",
         body: [
           "We're based in Barton on Sea and work across the New Forest and the Hampshire coast. Being local means we can visit quickly, meet tenants and contractors on site, and keep a closer eye on your property than a distant agency could.",
@@ -286,6 +292,10 @@ export const SERVICES: Service[] = [
       {
         q: "How much experience do you have?",
         a: "We have over 10 years of experience in property management. We started with a single holiday rental and have grown into a company that looks after holiday lets, homes, estates and commercial property.",
+      },
+      {
+        q: "Can you take over from another managing agent?",
+        a: "Yes. Talk to us about your property and the current arrangements, and we'll explain how the handover would work.",
       },
       {
         q: "Which areas do you cover?",

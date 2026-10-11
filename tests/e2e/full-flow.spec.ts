@@ -148,6 +148,10 @@ test.describe.serial("New Forest Estate Management", () => {
     await faqs.first().locator("summary").click();
     await expect(faqs.first()).toHaveAttribute("open", "");
     await shot(page, "02b-service-page");
+    await page.goto("/areas/lymington");
+    await shot(page, "02c-area-page");
+    await page.goto("/about");
+    await shot(page, "02d-about");
     await page.goto("/");
     await page.waitForTimeout(2600); // let the hero drawing finish
     await shot(page, "01-home-desktop");

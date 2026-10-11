@@ -1,4 +1,4 @@
-import type { ContentSection } from "@/content/services";
+import type { ContentSection, Faq } from "@/content/services";
 
 export interface Area {
   slug: string;
@@ -14,6 +14,7 @@ export interface Area {
   sections: ContentSection[];
   /** Nearby places we also cover, shown at the end of the page. */
   nearby: string[];
+  faqs: Faq[];
 }
 
 /**
@@ -43,6 +44,12 @@ export const AREAS: Area[] = [
         ],
       },
       {
+        heading: "Getting there",
+        body: [
+          "Lymington has two railway stations, Lymington Town and Lymington Pier, on the branch line from Brockenhurst, where trains connect with the main line to London Waterloo. By road, the A337 links the town with Brockenhurst and Lyndhurst to the north and New Milton to the west.",
+        ],
+      },
+      {
         heading: "What that means for owners",
         body: [
           "Lymington properties tend to be busy for much of the year, not just in the school holidays. Short breaks, sailing weekends and same-day turnarounds are common, and many guests bring dogs. That makes reliable changeovers essential: the property has to be cleaned, the beds made up for the right number of guests and everything reset, often in a few hours between check-out and arrival.",
@@ -57,6 +64,20 @@ export const AREAS: Area[] = [
       },
     ],
     nearby: ["Milford on Sea", "Keyhaven", "Sway", "Brockenhurst", "Beaulieu"],
+    faqs: [
+      {
+        q: "Is Lymington busy outside the summer holidays?",
+        a: "Yes. Sailing, the Saturday market and the Isle of Wight ferry keep Lymington busy for much of the year, so short breaks and same-day turnarounds are common outside the school holidays too.",
+      },
+      {
+        q: "Do you cover the villages around Lymington?",
+        a: "Yes. We also look after property in Milford on Sea, Keyhaven, Sway, Brockenhurst and Beaulieu.",
+      },
+      {
+        q: "Can you look after a Lymington home that isn't let?",
+        a: "Yes. Our estate management service covers regular property checks and maintenance arranged through trusted local tradespeople, with clear reports to you.",
+      },
+    ],
   },
   {
     slug: "milford-on-sea",
@@ -80,6 +101,12 @@ export const AREAS: Area[] = [
         ],
       },
       {
+        heading: "Getting there",
+        body: [
+          "Milford on Sea is just off the A337 coast road, a short drive from New Milton and Lymington, which are also the nearest railway stations. Many guests arrive by car, so it helps to tell them about parking at your property before they travel.",
+        ],
+      },
+      {
         heading: "What that means for owners",
         body: [
           "Coastal holiday homes work hard. Sand, salt and wet dogs are part of the job, and the sea air is tough on windows, doors and garden furniture. Changeovers need to be thorough, and small maintenance issues are best caught early, before the next winter storm finds them.",
@@ -94,6 +121,20 @@ export const AREAS: Area[] = [
       },
     ],
     nearby: ["Keyhaven", "Lymington", "Barton on Sea", "New Milton", "Highcliffe"],
+    faqs: [
+      {
+        q: "Do you look after properties close to the sea?",
+        a: "Yes. Coastal properties need extra care, especially after winter storms, so we keep an eye out for salt and weather damage during changeovers and property checks.",
+      },
+      {
+        q: "Do you cover Keyhaven?",
+        a: "Yes, along with Lymington, Barton on Sea, New Milton and Highcliffe.",
+      },
+      {
+        q: "Can you look after a Milford on Sea home that isn't let?",
+        a: "Yes. Our estate management service covers regular property checks and maintenance arranged through trusted local tradespeople, with clear reports to you.",
+      },
+    ],
   },
   {
     slug: "new-milton-barton-on-sea",
@@ -117,6 +158,12 @@ export const AREAS: Area[] = [
         ],
       },
       {
+        heading: "Getting there",
+        body: [
+          "New Milton station is on the main line between London Waterloo and Weymouth, and Barton on Sea is a short drive from the station. The A337 runs through New Milton, linking it with Lymington to the east and Highcliffe and Christchurch to the west.",
+        ],
+      },
+      {
         heading: "What that means for owners",
         body: [
           "Properties here suit families, couples and walkers all year round, and many guests bring dogs to enjoy the forest and the cliff paths. Being so close to our office means we can usually respond quickly when something needs attention between stays.",
@@ -131,6 +178,20 @@ export const AREAS: Area[] = [
       },
     ],
     nearby: ["Highcliffe", "Christchurch", "Milford on Sea", "Sway"],
+    faqs: [
+      {
+        q: "Where is your office?",
+        a: "At 38 Marine Drive East, Barton on Sea, BH25 7DX. We're open Monday to Friday, 9am to 5pm, and happy to arrange a visit.",
+      },
+      {
+        q: "Do you manage commercial property in New Milton?",
+        a: "Yes. Our commercial property management covers marketing the property, screening tenants, collecting the rent and arranging maintenance.",
+      },
+      {
+        q: "Do you cover Highcliffe and Christchurch?",
+        a: "Yes, as well as Milford on Sea and Sway.",
+      },
+    ],
   },
   {
     slug: "brockenhurst",
@@ -154,6 +215,12 @@ export const AREAS: Area[] = [
         ],
       },
       {
+        heading: "Getting there",
+        body: [
+          "Brockenhurst station is on the main line between London Waterloo and Weymouth, and it's where the branch line to Lymington begins. The A337 runs through the village, between Lyndhurst to the north and Lymington to the south.",
+        ],
+      },
+      {
         heading: "What that means for owners",
         body: [
           "Forest holidays are muddy holidays. Boots, bikes and dogs come back from the trails, so changeovers need to be thorough, and properties need checking for wear and tear more often than you might expect. With so many short breaks and same-day turnarounds, timing matters too.",
@@ -168,6 +235,20 @@ export const AREAS: Area[] = [
       },
     ],
     nearby: ["Lyndhurst", "Sway", "Lymington", "Beaulieu", "Burley"],
+    faqs: [
+      {
+        q: "Do you manage dog-friendly holiday lets in Brockenhurst?",
+        a: "Yes. Many guests come to walk in the forest with their dogs, so we allow for dogs in the clean and can put out dog beds and bowls for the next guests.",
+      },
+      {
+        q: "Is Brockenhurst busy all year?",
+        a: "Holiday lets here are popular all year round, with autumn and winter walking breaks as well as summer holidays, so short breaks and same-day turnarounds are common.",
+      },
+      {
+        q: "Do you cover Lyndhurst and Burley?",
+        a: "Yes, along with Sway, Lymington and Beaulieu.",
+      },
+    ],
   },
 ];
 

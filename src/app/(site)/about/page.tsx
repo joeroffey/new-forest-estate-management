@@ -11,7 +11,7 @@ import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "About Us | Local Property Managers in Barton on Sea",
   description:
-    "New Forest Estate Management began with a single holiday rental. Over 10 years on, we manage holiday lets, estates and commercial property from Barton on Sea.",
+    "We began with a single holiday rental. Now, with over 10 years of experience, we manage holiday lets, estates and commercial property from Barton on Sea.",
   path: "/about",
 });
 

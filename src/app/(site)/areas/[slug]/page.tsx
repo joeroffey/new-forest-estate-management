@@ -6,10 +6,11 @@ import { AREAS, findArea } from "@/content/areas";
 import { SERVICES } from "@/content/services";
 import { site } from "@/lib/site";
 import { joinList } from "@/lib/format";
-import { breadcrumbJsonLd, pageMetadata, serviceJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata, serviceJsonLd } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { ContentSections } from "@/components/site/content-sections";
 import { ContactCta } from "@/components/site/contact-cta";
+import { FaqList } from "@/components/site/faq-list";
 import { JsonLd } from "@/components/site/json-ld";
 import { ButtonLink } from "@/components/ui/button";
 import { Horizon } from "@/components/brand/landscape";
@@ -44,6 +45,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
             serviceType: "Holiday let and property management",
             areas: area.towns,
           }),
+          faqJsonLd(area.faqs),
         ]}
       />
 
@@ -95,7 +97,25 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
         </div>
       </div>
 
-      <section aria-labelledby="other-areas-title" className="bg-mist">
+      <section aria-labelledby="faq-title" className="bg-mist">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:py-24">
+          <div>
+            <h2 id="faq-title" className="font-serif text-[clamp(2rem,3.6vw,3.1rem)] leading-[1.08] tracking-[-0.02em] text-forest-deep">
+              Questions about {area.name}
+            </h2>
+            <p className="mt-4 max-w-sm leading-relaxed text-ink-soft">
+              Anything else? Call us on{" "}
+              <a href={site.phoneHref} className="font-semibold text-forest-deep underline-offset-4 hover:underline">
+                {site.phoneDisplay}
+              </a>
+              .
+            </p>
+          </div>
+          <FaqList faqs={area.faqs} />
+        </div>
+      </section>
+
+      <section aria-labelledby="other-areas-title" className="bg-paper">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-20">
           <h2 id="other-areas-title" className="font-serif text-2xl text-forest-deep">
             Other places we work
