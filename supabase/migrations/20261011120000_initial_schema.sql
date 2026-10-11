@@ -25,7 +25,7 @@ exception when duplicate_object then null; end $$;
 -- Helpers
 -- -----------------------------------------------------------------------------
 create or replace function public.touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at := now();
   return new;
@@ -310,6 +310,8 @@ $$;
 
 revoke all on function public.is_admin() from public;
 revoke all on function public.my_customer_id() from public;
+revoke execute on function public.is_admin() from anon;
+revoke execute on function public.my_customer_id() from anon;
 grant execute on function public.is_admin() to authenticated;
 grant execute on function public.my_customer_id() to authenticated;
 
@@ -400,6 +402,7 @@ begin
 end $$;
 
 revoke all on function public.save_invoice(uuid, uuid, date, date, text, date, date, numeric, text, jsonb, uuid) from public;
+revoke execute on function public.save_invoice(uuid, uuid, date, date, text, date, date, numeric, text, jsonb, uuid) from anon;
 grant execute on function public.save_invoice(uuid, uuid, date, date, text, date, date, numeric, text, jsonb, uuid) to authenticated;
 
 -- -----------------------------------------------------------------------------
