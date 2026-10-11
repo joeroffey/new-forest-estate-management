@@ -27,7 +27,7 @@ export default async function NewPortalBooking() {
       .gte("departure_date", addDaysISO(today, -60)),
     getSettings(),
   ]);
-  const properties = (propertyData ?? []) as BookingFormProperty[];
+  const properties = (propertyData ?? []) as unknown as BookingFormProperty[];
   if (properties.length === 0) redirect("/portal/properties/new?then=booking");
 
   return (
@@ -40,7 +40,7 @@ export default async function NewPortalBooking() {
       <BookingForm
         mode="create"
         properties={properties}
-        existing={(bookingData ?? []) as BookingFormExisting[]}
+        existing={(bookingData ?? []) as unknown as BookingFormExisting[]}
         isAdmin={false}
         today={today}
         lateChangeHours={settings.late_change_hours}

@@ -52,12 +52,12 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     supabase.from("invoices").select("customer_id, status").eq("period_start", lastStart).neq("status", "void"),
   ]);
 
-  const rows = (changeovers.data ?? []) as Row[];
-  const arrivalRows = (arrivals.data ?? []) as Array<Pick<Booking, "id" | "property_id" | "arrival_date" | "arrival_time">>;
+  const rows = (changeovers.data ?? []) as unknown as Row[];
+  const arrivalRows = (arrivals.data ?? []) as unknown as Array<Pick<Booking, "id" | "property_id" | "arrival_date" | "arrival_time">>;
   const invoices = (invoicesRes.data ?? []) as unknown as Array<Pick<Invoice, "id" | "number" | "total" | "due_date" | "status"> & { customer: { full_name: string } | null }>;
   const attention = (attentionRes.data ?? []) as unknown as Array<Pick<Booking, "id" | "reference" | "departure_date" | "whatsapp_error" | "notion_error"> & { property: { name: string } | null }>;
-  const activity = (activityRes.data ?? []) as Activity[];
-  const customers = (customersRes.data ?? []) as Array<Pick<Customer, "id" | "full_name" | "invited_at" | "user_id">>;
+  const activity = (activityRes.data ?? []) as unknown as Activity[];
+  const customers = (customersRes.data ?? []) as unknown as Array<Pick<Customer, "id" | "full_name" | "invited_at" | "user_id">>;
 
   const unpaid = invoices.filter((i) => i.status === "sent");
   const overdue = unpaid.filter((i) => i.due_date < today);
@@ -66,8 +66,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
   const notInvited = customers.filter((c) => !c.user_id && !c.invited_at);
   const pendingInvite = customers.filter((c) => !c.user_id && c.invited_at && new Date(c.invited_at).getTime() < Date.now() - 7 * 864e5);
 
-  const toInvoice = [...new Set(((lastMonthBookings.data ?? []) as Array<{ customer_id: string }>).map((b) => b.customer_id))];
-  const invoicedIds = new Set(((lastMonthInvoices.data ?? []) as Array<{ customer_id: string }>).map((i) => i.customer_id));
+  const toInvoice = [...new Set(((lastMonthBookings.data ?? []) as unknown as Array<{ customer_id: string }>).map((b) => b.customer_id))];
+  const invoicedIds = new Set(((lastMonthInvoices.data ?? []) as unknown as Array<{ customer_id: string }>).map((i) => i.customer_id));
   const stillToInvoice = toInvoice.filter((id) => !invoicedIds.has(id));
   const customerName = (id: string) => customers.find((c) => c.id === id)?.full_name ?? "Customer";
 

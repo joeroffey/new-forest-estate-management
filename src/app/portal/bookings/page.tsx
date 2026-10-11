@@ -30,7 +30,7 @@ export default async function PortalBookings({ searchParams }: { searchParams: P
   if (view === "past") query = query.eq("status", "confirmed").lt("departure_date", today).order("arrival_date", { ascending: false });
   if (view === "cancelled") query = query.eq("status", "cancelled").order("arrival_date", { ascending: false });
   const { data } = await query.limit(300);
-  const rows = (data ?? []) as Array<Booking & { property: { name: string } | null }>;
+  const rows = (data ?? []) as unknown as Array<Booking & { property: { name: string } | null }>;
   const bookings = markSameDay(rows, rows) as BookingListItem[];
   const sent = Number(params.sent ?? 0);
 

@@ -70,7 +70,7 @@ export async function saveProperty(_prev: ActionState, formData: FormData): Prom
     customerId = requestedCustomer ?? null;
   } else {
     const { data } = await supabase.from("customers").select("id").eq("user_id", viewer.user.id).maybeSingle();
-    customerId = (data as { id: string } | null)?.id ?? null;
+    customerId = (data as unknown as { id: string } | null)?.id ?? null;
   }
   if (!customerId && !id) return { error: "We couldn't tell which customer this property belongs to." };
 

@@ -13,7 +13,7 @@ export default async function EditPortalProperty({ params }: { params: Promise<{
   const supabase = await createClient();
   const { data } = await supabase.from("properties").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const property = data as Property;
+  const property = data as unknown as Property;
   return (
     <>
       <PageHeader title={property.name} description="Changes apply to future bookings." back={{ href: "/portal/properties", label: "Properties" }} />

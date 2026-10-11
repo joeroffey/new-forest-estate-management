@@ -20,8 +20,8 @@ export default async function AdminEditProperty({ params }: { params: Promise<{ 
     supabase.from("customers").select("full_name").eq("id", id).maybeSingle(),
   ]);
   if (!data) notFound();
-  const property = data as Property;
-  const customerName = (customerData as { full_name: string } | null)?.full_name ?? "Customer";
+  const property = data as unknown as Property;
+  const customerName = (customerData as unknown as { full_name: string } | null)?.full_name ?? "Customer";
   return (
     <>
       <PageHeader

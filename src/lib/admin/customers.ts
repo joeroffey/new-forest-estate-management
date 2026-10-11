@@ -115,7 +115,7 @@ export async function saveCustomer(_prev: ActionState, formData: FormData): Prom
     }
     const { data, error } = await supabase.from("customers").update(fields).eq("id", id).select("*").single();
     if (error || !data) return { error: friendlyDbError(error, "We couldn't save the customer.") };
-    customer = data as Customer;
+    customer = data as unknown as Customer;
     await supabase.from("customer_contacts").delete().eq("customer_id", id);
   } else {
     const { data, error } = await supabase.from("customers").insert(fields).select("*").single();
@@ -123,7 +123,7 @@ export async function saveCustomer(_prev: ActionState, formData: FormData): Prom
       if (error?.code === "23505") return { fieldErrors: { email: "A customer with this email already exists." } };
       return { error: friendlyDbError(error, "We couldn't create the customer.") };
     }
-    customer = data as Customer;
+    customer = data as unknown as Customer;
   }
 
   if (contacts.length) {
@@ -170,7 +170,7 @@ export async function inviteCustomer(customerId: string): Promise<ActionState> {
   if ("error" in viewer) return viewer;
   const supabase = await createClient();
   const { data } = await supabase.from("customers").select("*").eq("id", customerId).maybeSingle();
-  const customer = data as Customer | null;
+  const customer = data as unknown as Customer | null;
   if (!customer) return { error: "We couldn't find that customer." };
   if (customer.user_id) return { error: "This customer already has an account." };
   const result = await sendCustomerInvite(customer, { id: viewer.user.id, name: viewer.profile.full_name ?? "Admin" });

@@ -18,7 +18,7 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
     supabase.from("customers").select("id, full_name, company_name, email").eq("archived", false).order("full_name"),
     getSettings(),
   ]);
-  const customers = ((data ?? []) as Pick<Customer, "id" | "full_name" | "company_name" | "email">[]).map((c) => ({
+  const customers = ((data ?? []) as unknown as Pick<Customer, "id" | "full_name" | "company_name" | "email">[]).map((c) => ({
     id: c.id,
     name: c.company_name ? `${c.full_name} (${c.company_name})` : c.full_name,
     email: c.email,

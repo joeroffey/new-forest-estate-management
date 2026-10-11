@@ -63,7 +63,7 @@ export async function requestAccountLink(_prev: ActionState, formData: FormData)
   try {
     const admin = createAdminClient();
     const { data } = await admin.from("customers").select("*").ilike("email", email.replace(/[\\%_]/g, "\\$&")).maybeSingle();
-    const customer = data as Customer | null;
+    const customer = data as unknown as Customer | null;
     if (!customer || customer.archived) return done; // Don't reveal whether an email is on file.
 
     if (customer.user_id) {

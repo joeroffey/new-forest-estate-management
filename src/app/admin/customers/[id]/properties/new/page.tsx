@@ -12,7 +12,7 @@ export default async function AdminNewProperty({ params }: { params: Promise<{ i
   const supabase = await createClient();
   const { data } = await supabase.from("customers").select("id, full_name").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const customer = data as { id: string; full_name: string };
+  const customer = data as unknown as { id: string; full_name: string };
   return (
     <>
       <PageHeader title="Add property" description={`For ${customer.full_name}.`} back={{ href: `/admin/customers/${id}`, label: customer.full_name }} />

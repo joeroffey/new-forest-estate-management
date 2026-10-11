@@ -31,7 +31,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const today = todayISO();
   const supabase = await createClient();
   const { data } = await supabase.from("invoices").select("*, customer:customers(id, full_name, company_name, email)").order("issue_date", { ascending: false }).order("number", { ascending: false }).limit(2000);
-  const all = (data ?? []) as InvoiceWithCustomer[];
+  const all = (data ?? []) as unknown as InvoiceWithCustomer[];
 
   const unpaid = all.filter((i) => i.status === "sent");
   const overdue = unpaid.filter((i) => i.due_date < today);

@@ -16,11 +16,11 @@ export default async function EditCustomerPage({ params }: { params: Promise<{ i
     supabase.from("customer_contacts").select("*").eq("customer_id", id).order("created_at"),
   ]);
   if (!data) notFound();
-  const customer = data as Customer;
+  const customer = data as unknown as Customer;
   return (
     <>
       <PageHeader title={`Edit ${customer.full_name}`} back={{ href: `/admin/customers/${id}`, label: customer.full_name }} />
-      <CustomerForm customer={customer} contacts={(contactData ?? []) as CustomerContact[]} />
+      <CustomerForm customer={customer} contacts={(contactData ?? []) as unknown as CustomerContact[]} />
     </>
   );
 }

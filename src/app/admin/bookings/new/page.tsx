@@ -27,11 +27,11 @@ export default async function AdminNewBooking({ searchParams }: { searchParams: 
     supabase.from("bookings").select("id, property_id, arrival_date, departure_date, reference").eq("status", "confirmed").gte("departure_date", addDaysISO(today, -60)),
     getSettings(),
   ]);
-  const customers = ((customerData ?? []) as Pick<Customer, "id" | "full_name" | "company_name">[]).map((c) => ({
+  const customers = ((customerData ?? []) as unknown as Pick<Customer, "id" | "full_name" | "company_name">[]).map((c) => ({
     id: c.id,
     name: c.company_name ? `${c.full_name} (${c.company_name})` : c.full_name,
   }));
-  const properties = (propertyData ?? []) as BookingFormProperty[];
+  const properties = (propertyData ?? []) as unknown as BookingFormProperty[];
   const preselected = params.customer && customers.some((c) => c.id === params.customer) ? params.customer : undefined;
 
   if (customers.length === 0) {
@@ -52,7 +52,7 @@ export default async function AdminNewBooking({ searchParams }: { searchParams: 
         properties={properties}
         customers={customers}
         initial={undefined}
-        existing={(bookingData ?? []) as BookingFormExisting[]}
+        existing={(bookingData ?? []) as unknown as BookingFormExisting[]}
         isAdmin
         today={today}
         lateChangeHours={settings.late_change_hours}

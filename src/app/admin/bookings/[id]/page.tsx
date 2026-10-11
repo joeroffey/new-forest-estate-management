@@ -50,7 +50,7 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
   const supabase = await createClient();
   const { data } = await supabase.from("bookings").select("*, property:properties(*), customer:customers(*)").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const booking = data as Booking & { property: Property; customer: Customer };
+  const booking = data as unknown as Booking & { property: Property; customer: Customer };
   const [{ data: activityData }, settings, { data: neighbourData }] = await Promise.all([
     supabase.from("activity").select("*").eq("booking_id", id).order("created_at", { ascending: false }).limit(30),
     getSettings(),
@@ -62,7 +62,7 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
       .neq("id", id)
       .or(`arrival_date.eq.${booking.departure_date},departure_date.eq.${booking.arrival_date}`),
   ]);
-  const neighbours = (neighbourData ?? []) as Array<Pick<Booking, "id" | "arrival_date" | "departure_date" | "arrival_time">>;
+  const neighbours = (neighbourData ?? []) as unknown as Array<Pick<Booking, "id" | "arrival_date" | "departure_date" | "arrival_time">>;
   const nextSameDay = neighbours.find((n) => n.arrival_date === booking.departure_date);
   const prevSameDay = neighbours.find((n) => n.departure_date === booking.arrival_date);
 
@@ -207,7 +207,7 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
             </ul>
           </Panel>
           <Panel title="History">
-            <ActivityFeed items={(activityData ?? []) as Activity[]} />
+            <ActivityFeed items={(activityData ?? []) as unknown as Activity[]} />
             <p className="mt-4 text-xs text-ink-faint">Created {formatDateTime(booking.created_at)}</p>
           </Panel>
         </div>

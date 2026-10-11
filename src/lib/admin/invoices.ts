@@ -127,7 +127,7 @@ async function deliverInvoice(
     .select("email")
     .eq("customer_id", customer.id)
     .eq("receives_invoices", true);
-  const cc = ((contactData ?? []) as Pick<CustomerContact, "email">[]).map((c) => c.email ?? "").filter(Boolean);
+  const cc = ((contactData ?? []) as unknown as Pick<CustomerContact, "email">[]).map((c) => c.email ?? "").filter(Boolean);
 
   const firstName = customer.full_name.split(" ")[0] ?? customer.full_name;
   const overdue = invoice.due_date < todayISO();
@@ -296,7 +296,7 @@ export async function markInvoiceUnpaid(invoiceId: string): Promise<ActionState>
   if ("error" in viewer) return viewer;
   const supabase = await createClient();
   const { data } = await supabase.from("invoices").select("number, customer_id, sent_at, status").eq("id", invoiceId).maybeSingle();
-  const inv = data as Pick<Invoice, "number" | "customer_id" | "sent_at" | "status"> | null;
+  const inv = data as unknown as Pick<Invoice, "number" | "customer_id" | "sent_at" | "status"> | null;
   if (!inv) return { error: "We couldn't find that invoice." };
   const { error } = await supabase
     .from("invoices")
@@ -320,7 +320,7 @@ export async function voidInvoice(invoiceId: string): Promise<ActionState> {
   if ("error" in viewer) return viewer;
   const supabase = await createClient();
   const { data } = await supabase.from("invoices").select("number, customer_id").eq("id", invoiceId).maybeSingle();
-  const inv = data as Pick<Invoice, "number" | "customer_id"> | null;
+  const inv = data as unknown as Pick<Invoice, "number" | "customer_id"> | null;
   if (!inv) return { error: "We couldn't find that invoice." };
   const { error } = await supabase.from("invoices").update({ status: "void" }).eq("id", invoiceId);
   if (error) return { error: friendlyDbError(error) };
@@ -341,7 +341,7 @@ export async function deleteDraftInvoice(invoiceId: string): Promise<ActionState
   if ("error" in viewer) return viewer;
   const supabase = await createClient();
   const { data } = await supabase.from("invoices").select("status, number").eq("id", invoiceId).maybeSingle();
-  const inv = data as Pick<Invoice, "status" | "number"> | null;
+  const inv = data as unknown as Pick<Invoice, "status" | "number"> | null;
   if (!inv) return { error: "We couldn't find that invoice." };
   if (inv.status !== "draft") return { error: "Only drafts can be deleted. Void a sent invoice instead." };
   const { error } = await supabase.from("invoices").delete().eq("id", invoiceId);
@@ -392,7 +392,7 @@ export async function getInvoiceContext(customerId: string, periodStart: string 
     .limit(1);
   if (excludeInvoiceId) lastQuery = lastQuery.neq("id", excludeInvoiceId);
   const { data: lastData } = await lastQuery;
-  const last = (lastData?.[0] ?? null) as (Omit<NonNullable<InvoiceContext["lastInvoice"]>, "items"> & { items: Array<InvoiceItem> }) | null;
+  const last = (lastData?.[0] ?? null) as unknown as (Omit<NonNullable<InvoiceContext["lastInvoice"]>, "items"> & { items: Array<InvoiceItem> }) | null;
 
   let bookings: InvoiceContext["bookings"] = [];
   if (periodStart && periodEnd && isValidISODate(periodStart) && isValidISODate(periodEnd)) {
@@ -404,7 +404,7 @@ export async function getInvoiceContext(customerId: string, periodStart: string 
       .gte("departure_date", periodStart)
       .lte("departure_date", periodEnd)
       .order("departure_date", { ascending: true });
-    const rows = (data ?? []) as Array<Booking & { property: { name: string } | null }>;
+    const rows = (data ?? []) as unknown as Array<Booking & { property: { name: string } | null }>;
     const ids = rows.map((r) => r.id);
     const invoicedMap = new Map<string, string>();
     if (ids.length) {

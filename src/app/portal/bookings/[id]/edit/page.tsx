@@ -19,7 +19,7 @@ export default async function EditPortalBooking({ params }: { params: Promise<{ 
   const today = todayISO();
   const { data } = await supabase.from("bookings").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const booking = data as Booking;
+  const booking = data as unknown as Booking;
   if (booking.status !== "confirmed" || booking.departure_date < today) redirect(`/portal/bookings/${id}`);
 
   const [{ data: propertyData }, { data: bookingData }, settings] = await Promise.all([
@@ -41,8 +41,8 @@ export default async function EditPortalBooking({ params }: { params: Promise<{ 
       <PageHeader title="Change booking" description={`Ref ${booking.reference}. The team is told about any change you save.`} back={{ href: `/portal/bookings/${id}`, label: "Back to booking" }} />
       <BookingForm
         mode="edit"
-        properties={(propertyData ?? []) as BookingFormProperty[]}
-        existing={(bookingData ?? []) as BookingFormExisting[]}
+        properties={(propertyData ?? []) as unknown as BookingFormProperty[]}
+        existing={(bookingData ?? []) as unknown as BookingFormExisting[]}
         initial={{ id: booking.id, property_id: booking.property_id, customer_id: booking.customer_id, stay: bookingToStayInput(booking) }}
         isAdmin={false}
         today={today}

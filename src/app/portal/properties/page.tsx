@@ -14,7 +14,7 @@ export default async function PortalProperties() {
   await requireCustomer();
   const supabase = await createClient();
   const { data } = await supabase.from("properties").select("*").eq("archived", false).order("name");
-  const properties = (data ?? []) as Property[];
+  const properties = (data ?? []) as unknown as Property[];
   return (
     <>
       <PageHeader

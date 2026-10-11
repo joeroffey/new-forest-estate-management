@@ -58,7 +58,7 @@ export async function findValidInvitation(token: string): Promise<Invitation | n
     .select("id, kind, customer_id, email, full_name, expires_at, accepted_at")
     .eq("token_hash", hashToken(token))
     .maybeSingle();
-  const inv = data as Invitation | null;
+  const inv = data as unknown as Invitation | null;
   if (!inv || inv.accepted_at || new Date(inv.expires_at).getTime() < Date.now()) return null;
   return inv;
 }

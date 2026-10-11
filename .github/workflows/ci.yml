@@ -62,11 +62,13 @@ jobs:
         continue-on-error: true
         run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_test.sql 2>&1 | tee ci-db-tests.log
 
+      - name: Type check (all errors at once)
+        run: |
+          printf '/// <reference types="next" />\n/// <reference types="next/image-types/global" />\n' > next-env.d.ts
+          npx tsc --noEmit 2>&1 | tee ci-typecheck.log
+
       - name: Build
         run: npm run build 2>&1 | tee ci-build.log
-
-      - name: Type check
-        run: npx tsc --noEmit 2>&1 | tee ci-typecheck.log
 
       - name: Start app and mock services
         run: |

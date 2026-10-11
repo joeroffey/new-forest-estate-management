@@ -25,7 +25,7 @@ async function getActor(): Promise<Actor | null> {
   if (!isAdmin) {
     const supabase = await createClient();
     const { data } = await supabase.from("customers").select("id").eq("user_id", viewer.user.id).maybeSingle();
-    customerId = (data as { id: string } | null)?.id ?? null;
+    customerId = (data as unknown as { id: string } | null)?.id ?? null;
     if (!customerId) return null;
   }
   return { viewer, isAdmin, customerId, name: viewer.profile.full_name || viewer.user.email || "Someone" };
@@ -71,7 +71,7 @@ export async function createBookings(input: BookingSubmission): Promise<ActionSt
 
   const supabase = await createClient();
   const { data: propertyData } = await supabase.from("properties").select("*").eq("id", property_id).maybeSingle();
-  const property = propertyData as Property | null;
+  const property = propertyData as unknown as Property | null;
   if (!property || property.archived) return { fieldErrors: { property_id: "Choose one of your properties" } };
 
   const customerId = actor.isAdmin ? property.customer_id : actor.customerId!;
@@ -103,7 +103,7 @@ export async function createBookings(input: BookingSubmission): Promise<ActionSt
     .select("id, reference, arrival_date, departure_date")
     .eq("property_id", property_id)
     .eq("status", "confirmed");
-  const existing = (existingData ?? []) as Array<Pick<Booking, "id" | "reference" | "arrival_date" | "departure_date">>;
+  const existing = (existingData ?? []) as unknown as Array<Pick<Booking, "id" | "reference" | "arrival_date" | "departure_date">>;
   findOverlaps(stays, existing).forEach((clash, i) => {
     if (clash && !fieldErrors[`stays.${i}.arrival_date`]) {
       fieldErrors[`stays.${i}.arrival_date`] = `Overlaps with an existing booking (${formatDateRange(clash.arrival_date, clash.departure_date)})`;
@@ -180,7 +180,7 @@ export async function updateBooking(input: { id: string; property_id: string; st
 
   const supabase = await createClient();
   const { data: bookingData } = await supabase.from("bookings").select("*").eq("id", id).maybeSingle();
-  const before = bookingData as Booking | null;
+  const before = bookingData as unknown as Booking | null;
   if (!before) return { error: "We couldn't find that booking." };
   if (before.status === "cancelled") return { error: "This booking has been cancelled, so it can't be changed." };
   const today = todayISO();
@@ -191,7 +191,7 @@ export async function updateBooking(input: { id: string; property_id: string; st
   }
 
   const { data: propertyData } = await supabase.from("properties").select("id, customer_id, archived").eq("id", property_id).maybeSingle();
-  const property = propertyData as Pick<Property, "id" | "customer_id" | "archived"> | null;
+  const property = propertyData as unknown as Pick<Property, "id" | "customer_id" | "archived"> | null;
   if (!property || property.customer_id !== before.customer_id) {
     return { fieldErrors: { property_id: "Choose one of this customer's properties" } };
   }
@@ -202,7 +202,7 @@ export async function updateBooking(input: { id: string; property_id: string; st
     .eq("property_id", property_id)
     .eq("status", "confirmed")
     .neq("id", id);
-  const clash = findOverlaps([stay], (existingData ?? []) as Array<Pick<Booking, "id" | "reference" | "arrival_date" | "departure_date">>)[0];
+  const clash = findOverlaps([stay], (existingData ?? []) as unknown as Array<Pick<Booking, "id" | "reference" | "arrival_date" | "departure_date">>)[0];
   if (clash) {
     return {
       fieldErrors: { "stays.0.arrival_date": `Overlaps with another booking (${formatDateRange(clash.arrival_date, clash.departure_date)})` },
@@ -246,7 +246,7 @@ export async function cancelBooking(id: string, reason?: string): Promise<Action
 
   const supabase = await createClient();
   const { data } = await supabase.from("bookings").select("*").eq("id", id).maybeSingle();
-  const booking = data as Booking | null;
+  const booking = data as unknown as Booking | null;
   if (!booking || (!actor.isAdmin && booking.customer_id !== actor.customerId)) return { error: "We couldn't find that booking." };
   if (booking.status === "cancelled") return { ok: true, message: "This booking was already cancelled" };
   if (!actor.isAdmin && booking.departure_date < todayISO()) {

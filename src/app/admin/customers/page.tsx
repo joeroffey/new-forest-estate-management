@@ -24,9 +24,9 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
     supabase.from("properties").select("id, customer_id, name").eq("archived", false),
     supabase.from("invoices").select("customer_id, total, status, due_date").eq("status", "sent"),
   ]);
-  const customers = (data ?? []) as Customer[];
-  const properties = (propData ?? []) as Pick<Property, "id" | "customer_id" | "name">[];
-  const invoices = (invData ?? []) as Pick<Invoice, "customer_id" | "total" | "status" | "due_date">[];
+  const customers = (data ?? []) as unknown as Customer[];
+  const properties = (propData ?? []) as unknown as Pick<Property, "id" | "customer_id" | "name">[];
+  const invoices = (invData ?? []) as unknown as Pick<Invoice, "customer_id" | "total" | "status" | "due_date">[];
   const today = todayISO();
   const filtered = q
     ? customers.filter((c) =>

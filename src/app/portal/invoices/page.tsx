@@ -14,7 +14,7 @@ export default async function PortalInvoices() {
   await requireCustomer();
   const supabase = await createClient();
   const { data } = await supabase.from("invoices").select("*").order("issue_date", { ascending: false }).limit(500);
-  const invoices = (data ?? []) as Invoice[];
+  const invoices = (data ?? []) as unknown as Invoice[];
   const today = todayISO();
   const owed = invoices.filter((i) => i.status === "sent").reduce((s, i) => s + Number(i.total), 0);
   const overdue = invoices.filter((i) => i.status === "sent" && i.due_date < today).length;

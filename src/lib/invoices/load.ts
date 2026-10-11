@@ -12,7 +12,7 @@ export async function loadInvoice(client: SupabaseClient, id: string): Promise<I
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const { data } = await client.from("invoices").select("*, customer:customers(*), items:invoice_items(*)").eq("id", id).maybeSingle();
   if (!data) return null;
-  const row = data as Invoice & { customer: Customer | null; items: InvoiceItem[] | null };
+  const row = data as unknown as Invoice & { customer: Customer | null; items: InvoiceItem[] | null };
   if (!row.customer) return null;
   const { customer, items, ...invoice } = row;
   return {

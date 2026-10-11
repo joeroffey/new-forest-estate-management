@@ -32,7 +32,7 @@ export default async function AdminBookings({ searchParams }: { searchParams: Pr
   if (view === "past") query = query.eq("status", "confirmed").lt("departure_date", today).order("departure_date", { ascending: false });
   if (view === "cancelled") query = query.eq("status", "cancelled").order("cancelled_at", { ascending: false });
   const { data } = await query.limit(1000);
-  const rows = (data ?? []) as Array<Booking & { property: { name: string } | null; customer: { full_name: string } | null }>;
+  const rows = (data ?? []) as unknown as Array<Booking & { property: { name: string } | null; customer: { full_name: string } | null }>;
   const filtered = q
     ? rows.filter((r) => [r.reference, r.property?.name, r.customer?.full_name, r.guest_name].some((v) => v?.toLowerCase().includes(q)))
     : rows;

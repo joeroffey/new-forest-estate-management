@@ -153,7 +153,7 @@ export default async function AdminInvoicePage({ params }: { params: Promise<{ i
             ) : null}
           </Panel>
           <Panel title="History">
-            <ActivityFeed items={(activityData ?? []) as Activity[]} />
+            <ActivityFeed items={(activityData ?? []) as unknown as Activity[]} />
           </Panel>
         </div>
       </div>

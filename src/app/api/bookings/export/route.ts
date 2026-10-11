@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   else if (view === "past") query = query.eq("status", "confirmed").lt("departure_date", today);
   else if (view === "cancelled") query = query.eq("status", "cancelled");
   const { data } = await query.limit(5000);
-  const rows = (data ?? []) as Array<Booking & { property: { name: string } | null; customer: { full_name: string; email: string } | null }>;
+  const rows = (data ?? []) as unknown as Array<Booking & { property: { name: string } | null; customer: { full_name: string; email: string } | null }>;
 
   const header = ["Reference", "Status", "Property", "Customer", "Customer email", "Arrival", "Departure", "Nights", "Check-out time", "Adults", "Children", "Infants", "Dogs", "Bed setup", "Extras", "Lead guest", "Booked through", "Notes", "Created"];
   const lines = rows.map((r) =>

@@ -21,7 +21,7 @@ export default async function PortalBookingPage({ params }: { params: Promise<{ 
   const supabase = await createClient();
   const { data } = await supabase.from("bookings").select("*, property:properties(*)").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const booking = data as Booking & { property: Property };
+  const booking = data as unknown as Booking & { property: Property };
   const editable = booking.status === "confirmed" && booking.departure_date >= todayISO();
   const cancel = cancelBooking.bind(null, booking.id, undefined);
 

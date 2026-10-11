@@ -34,7 +34,7 @@ export default async function SettingsPage() {
     supabase.from("profiles").select("*").eq("role", "admin").order("created_at"),
     getBaseUrl(),
   ]);
-  const admins = (adminData ?? []) as Profile[];
+  const admins = (adminData ?? []) as unknown as Profile[];
   const configured = { greenapi: isWhatsAppConfigured("greenapi"), whapi: isWhatsAppConfigured("whapi") };
   const waStatus = configured[s.whatsapp_provider] ? await getWhatsAppStatus(s.whatsapp_provider) : null;
   const emailOk = isEmailConfigured();

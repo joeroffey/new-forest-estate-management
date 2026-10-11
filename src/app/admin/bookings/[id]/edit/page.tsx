@@ -19,7 +19,7 @@ export default async function AdminEditBooking({ params }: { params: Promise<{ i
   const today = todayISO();
   const { data } = await supabase.from("bookings").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const booking = data as Booking;
+  const booking = data as unknown as Booking;
   if (booking.status !== "confirmed") redirect(`/admin/bookings/${id}`);
 
   const [{ data: customerData }, { data: propertyData }, { data: bookingData }, settings] = await Promise.all([
@@ -32,16 +32,16 @@ export default async function AdminEditBooking({ params }: { params: Promise<{ i
     supabase.from("bookings").select("id, property_id, arrival_date, departure_date, reference").eq("status", "confirmed").gte("departure_date", addDaysISO(today, -400)),
     getSettings(),
   ]);
-  const customers = ((customerData ?? []) as Pick<Customer, "id" | "full_name" | "company_name">[]).map((c) => ({ id: c.id, name: c.full_name }));
+  const customers = ((customerData ?? []) as unknown as Pick<Customer, "id" | "full_name" | "company_name">[]).map((c) => ({ id: c.id, name: c.full_name }));
 
   return (
     <>
       <PageHeader title="Edit booking" description={`Ref ${booking.reference}. Saving tells the customer, the cleaners and Notion what changed.`} back={{ href: `/admin/bookings/${id}`, label: "Back to booking" }} />
       <BookingForm
         mode="edit"
-        properties={(propertyData ?? []) as BookingFormProperty[]}
+        properties={(propertyData ?? []) as unknown as BookingFormProperty[]}
         customers={customers}
-        existing={(bookingData ?? []) as BookingFormExisting[]}
+        existing={(bookingData ?? []) as unknown as BookingFormExisting[]}
         initial={{ id: booking.id, property_id: booking.property_id, customer_id: booking.customer_id, stay: bookingToStayInput(booking) }}
         isAdmin
         today={today}

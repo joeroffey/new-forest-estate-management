@@ -29,10 +29,10 @@ export default async function PortalHome({ searchParams }: { searchParams: Promi
     supabase.from("properties").select("id, name, town").eq("archived", false).order("name"),
   ]);
 
-  const upcomingAll = (bookingData ?? []) as Array<Booking & { property: { name: string } | null }>;
+  const upcomingAll = (bookingData ?? []) as unknown as Array<Booking & { property: { name: string } | null }>;
   const upcoming = markSameDay(upcomingAll, upcomingAll).slice(0, 6) as BookingListItem[];
-  const unpaid = (invoiceData ?? []) as Invoice[];
-  const properties = (propertyData ?? []) as Pick<Property, "id" | "name" | "town">[];
+  const unpaid = (invoiceData ?? []) as unknown as Invoice[];
+  const properties = (propertyData ?? []) as unknown as Pick<Property, "id" | "name" | "town">[];
   const owed = unpaid.reduce((sum, i) => sum + Number(i.total), 0);
   const firstName = customer.full_name.split(" ")[0];
 

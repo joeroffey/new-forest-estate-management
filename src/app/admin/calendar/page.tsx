@@ -40,7 +40,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     supabase.from("properties").select("id, name, town, customer:customers(full_name)").eq("archived", false).order("name"),
   ]);
 
-  const rows = (data ?? []) as Array<Booking & { property: { name: string } | null; customer: { full_name: string } | null }>;
+  const rows = (data ?? []) as unknown as Array<Booking & { property: { name: string } | null; customer: { full_name: string } | null }>;
   const properties = (propertyData ?? []) as unknown as Array<Pick<Property, "id" | "name" | "town"> & { customer: { full_name: string } | null }>;
   const colourIndex = new Map(properties.map((p, i) => [p.id, i % PROPERTY_COLOURS.length]));
   const colourFor = (id: string) => PROPERTY_COLOURS[colourIndex.get(id) ?? 0]!;

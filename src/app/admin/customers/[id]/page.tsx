@@ -24,7 +24,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
   const today = todayISO();
   const { data } = await supabase.from("customers").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const customer = data as Customer;
+  const customer = data as unknown as Customer;
 
   const [{ data: contactData }, { data: propertyData }, { data: bookingData }, { data: invoiceData }, { data: activityData }] = await Promise.all([
     supabase.from("customer_contacts").select("*").eq("customer_id", id).order("created_at"),
@@ -40,11 +40,11 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     supabase.from("invoices").select("*").eq("customer_id", id).order("issue_date", { ascending: false }).limit(50),
     supabase.from("activity").select("*").eq("customer_id", id).order("created_at", { ascending: false }).limit(20),
   ]);
-  const contacts = (contactData ?? []) as CustomerContact[];
-  const properties = (propertyData ?? []) as Property[];
-  const bookingRows = (bookingData ?? []) as Array<Booking & { property: { name: string } | null }>;
+  const contacts = (contactData ?? []) as unknown as CustomerContact[];
+  const properties = (propertyData ?? []) as unknown as Property[];
+  const bookingRows = (bookingData ?? []) as unknown as Array<Booking & { property: { name: string } | null }>;
   const bookings = markSameDay(bookingRows, bookingRows) as BookingListItem[];
-  const invoices = (invoiceData ?? []) as Invoice[];
+  const invoices = (invoiceData ?? []) as unknown as Invoice[];
   const owed = invoices.filter((i) => i.status === "sent").reduce((s, i) => s + Number(i.total), 0);
 
   return (
@@ -130,7 +130,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
           </Panel>
 
           <Panel title="History">
-            <ActivityFeed items={(activityData ?? []) as Activity[]} />
+            <ActivityFeed items={(activityData ?? []) as unknown as Activity[]} />
           </Panel>
 
           <div className="flex justify-end">

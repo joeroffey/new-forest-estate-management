@@ -13,7 +13,7 @@ export default async function PortalAccount() {
   const { customer, user } = await requireCustomer();
   const supabase = await createClient();
   const { data } = await supabase.from("customer_contacts").select("*").order("name");
-  const contacts = (data ?? []) as CustomerContact[];
+  const contacts = (data ?? []) as unknown as CustomerContact[];
   return (
     <>
       <PageHeader title="Your account" />

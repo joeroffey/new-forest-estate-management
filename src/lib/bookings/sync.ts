@@ -49,7 +49,7 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
     .select("*, property:properties(*), customer:customers(*)")
     .in("id", bookingIds);
   if (error) throw new Error(`Could not load bookings: ${error.message}`);
-  const rows = (data ?? []) as BookingRow[];
+  const rows = (data ?? []) as unknown as BookingRow[];
   if (rows.length === 0) return [];
 
   const propertyIds = [...new Set(rows.map((r) => r.property_id))];
@@ -64,7 +64,7 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
     .gte("departure_date", addDaysISO(minArrival, -1))
     .lte("arrival_date", addDaysISO(maxDeparture, 180))
     .order("arrival_date", { ascending: true });
-  const neighbours = (neighbourData ?? []) as Array<
+  const neighbours = (neighbourData ?? []) as unknown as Array<
     Pick<Booking, "id" | "property_id" | "arrival_date" | "departure_date" | "arrival_time">
   >;
 
@@ -190,7 +190,7 @@ async function customerRecipients(customer: Customer): Promise<{ to: string[]; c
     .select("email, receives_bookings")
     .eq("customer_id", customer.id)
     .eq("receives_bookings", true);
-  const cc = ((data ?? []) as Pick<CustomerContact, "email">[]).map((c) => c.email ?? "").filter(Boolean);
+  const cc = ((data ?? []) as unknown as Pick<CustomerContact, "email">[]).map((c) => c.email ?? "").filter(Boolean);
   return { to: [customer.email], cc };
 }
 
@@ -367,6 +367,6 @@ export async function retryBookingSync(
 ): Promise<SyncResult> {
   const admin = createAdminClient();
   const { data } = await admin.from("bookings").select("status").eq("id", bookingId).maybeSingle();
-  const kind: SyncKind = (data as { status?: string } | null)?.status === "cancelled" ? "cancelled" : "created";
+  const kind: SyncKind = (data as unknown as { status?: string } | null)?.status === "cancelled" ? "cancelled" : "created";
   return syncBookings(kind, [bookingId], actor, { skipEmails: true, channels: [channel] });
 }
