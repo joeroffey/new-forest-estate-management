@@ -1,7 +1,11 @@
-import type { Metadata } from "next";
 import { site } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Privacy", description: `How ${site.name} uses your information.` };
+export const metadata = pageMetadata({
+  title: "Privacy Notice | New Forest Estate Management",
+  description: `How ${site.name} collects, uses and protects personal information from this website and the owner portal.`,
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

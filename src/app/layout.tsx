@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Albert_Sans, Newsreader } from "next/font/google";
 import { Toaster } from "sonner";
 import { site } from "@/lib/site";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const serif = Newsreader({
@@ -18,12 +19,10 @@ const sans = Albert_Sans({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.newforestestatemanagement.co.uk";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: `${site.name} | Holiday let & property management in the New Forest`,
+    default: site.name,
     template: `%s | ${site.name}`,
   },
   description: site.description,

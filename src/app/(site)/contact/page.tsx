@@ -1,20 +1,25 @@
-import type { Metadata } from "next";
 import { Clock, MapPin, Phone, Mail } from "lucide-react";
 import { site } from "@/lib/site";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { JsonLd } from "@/components/site/json-ld";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Contact ${site.name} in Barton on Sea. Call ${site.phoneDisplay} or send us a message.`,
-};
+export const metadata = pageMetadata({
+  title: "Contact New Forest Estate Management, Barton on Sea",
+  description: `Talk to us about holiday let, estate or commercial property management. Call ${site.phoneDisplay} or send a message to our Barton on Sea office.`,
+  path: "/contact",
+});
 
 export default function ContactPage() {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${site.address.line1}, ${site.address.town}, ${site.address.postcode}`,
   )}`;
   return (
-    <section className="mx-auto max-w-7xl px-5 pt-10 pb-24 sm:px-8 md:pt-16">
-      <h1 className="max-w-[14ch] font-serif text-[clamp(2.4rem,5.4vw,4.4rem)] leading-[1.04] font-[350] tracking-[-0.03em] text-forest-deep">
+    <section className="mx-auto max-w-7xl px-5 pt-8 pb-24 sm:px-8 md:pt-12">
+      <JsonLd items={[breadcrumbJsonLd([{ name: "Contact", path: "/contact" }])]} />
+      <Breadcrumbs trail={[{ name: "Contact", path: "/contact" }]} />
+      <h1 className="mt-8 max-w-[14ch] font-serif text-[clamp(2.4rem,5.4vw,4.4rem)] leading-[1.04] font-[350] tracking-[-0.03em] text-forest-deep">
         Get in touch
       </h1>
       <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">

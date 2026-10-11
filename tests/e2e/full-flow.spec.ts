@@ -118,11 +118,36 @@ test.describe.serial("New Forest Estate Management", () => {
       ["/about", /It started with one holiday rental/],
       ["/contact", /Get in touch/],
       ["/privacy", /Privacy notice/],
+      ["/services/holiday-rental-management", /Holiday let management in the New Forest/],
+      ["/services/estate-management", /Property and estate management in the New Forest/],
+      ["/services/commercial-property-management", /Commercial property management/],
+      ["/areas/lymington", /in Lymington/],
+      ["/areas/milford-on-sea", /in Milford on Sea/],
+      ["/areas/new-milton-barton-on-sea", /in New Milton and Barton on Sea/],
+      ["/areas/brockenhurst", /in Brockenhurst/],
     ] as const) {
       const res = await page.goto(path);
       expect(res?.status(), path).toBe(200);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+      // Every public page names its one canonical address and carries valid structured data
+      await expect(page.locator('link[rel="canonical"]'), path).toHaveAttribute("href", new RegExp(`^http://localhost:3000${path === "/" ? "/?" : path}$`));
+      const ldBlocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+      expect(ldBlocks.length, path).toBeGreaterThan(0);
+      for (const block of ldBlocks) expect(() => JSON.parse(block), path).not.toThrow();
+      expect(ldBlocks.join(" "), path).toContain('"RealEstateAgent"');
+      expect(await page.title(), path).not.toMatch(/\|.*\|/);
     }
+    // Old GoDaddy addresses go to their new pages
+    const old = await page.request.get("/contact-us", { maxRedirects: 0 });
+    expect(old.status()).toBe(308);
+    expect(old.headers()["location"]).toMatch(/\/contact$/);
+    expect((await page.request.get("/llms.txt")).status()).toBe(200);
+    const faqs = page.locator("details");
+    await page.goto("/services/holiday-rental-management");
+    expect(await faqs.count()).toBeGreaterThan(3);
+    await faqs.first().locator("summary").click();
+    await expect(faqs.first()).toHaveAttribute("open", "");
+    await shot(page, "02b-service-page");
     await page.goto("/");
     await page.waitForTimeout(2600); // let the hero drawing finish
     await shot(page, "01-home-desktop");

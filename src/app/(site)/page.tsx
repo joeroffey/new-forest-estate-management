@@ -1,9 +1,19 @@
 import Link from "next/link";
-import { CalendarCheck2, Phone } from "lucide-react";
+import { CalendarCheck2 } from "lucide-react";
 import { Landscape } from "@/components/brand/landscape";
 import { ButtonLink } from "@/components/ui/button";
+import { ContactCta } from "@/components/site/contact-cta";
 import { site } from "@/lib/site";
-import { SERVICES } from "@/app/(site)/services/content";
+import { pageMetadata } from "@/lib/seo";
+import { SERVICES } from "@/content/services";
+import { areaForTown } from "@/content/areas";
+
+export const metadata = pageMetadata({
+  title: "Holiday Let & Property Management in the New Forest",
+  description:
+    "Holiday let changeovers, estate and commercial property management across the New Forest and Hampshire coast, from our office in Barton on Sea.",
+  path: "/",
+});
 
 export default function HomePage() {
   return (
@@ -52,7 +62,7 @@ export default function HomePage() {
                 <div>
                   <h3 className="font-serif text-[1.85rem] leading-tight tracking-[-0.01em] text-forest">{service.title}</h3>
                   <Link
-                    href={`/services#${service.slug}`}
+                    href={service.href}
                     className="mt-3 inline-block text-sm font-semibold text-forest-deep underline decoration-sage decoration-2 underline-offset-4 hover:decoration-forest"
                   >
                     More about {service.short}
@@ -158,38 +168,25 @@ export default function HomePage() {
             </p>
           </div>
           <ul className="grid grid-cols-2 gap-x-8 sm:grid-cols-3">
-            {site.areas.map((area) => (
-              <li key={area} className="border-b border-line py-3 font-serif text-xl text-forest-deep">
-                {area}
-              </li>
-            ))}
+            {site.areas.map((town) => {
+              const page = areaForTown(town);
+              return (
+                <li key={town} className="border-b border-line py-3 font-serif text-xl text-forest-deep">
+                  {page ? (
+                    <Link href={page.href} className="underline decoration-sage decoration-1 underline-offset-[6px] hover:decoration-forest">
+                      {town}
+                    </Link>
+                  ) : (
+                    town
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </section>
 
-      {/* -------------------------------------------------------------- CTA */}
-      <section aria-labelledby="cta-title" className="bg-mist">
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-24">
-          <div className="grid gap-8 md:grid-cols-[minmax(0,1.4fr)_auto] md:items-end">
-            <div>
-              <h2 id="cta-title" className="max-w-[18ch] font-serif text-[clamp(2.1rem,4.4vw,3.8rem)] leading-[1.04] tracking-[-0.025em] text-forest-deep">
-                Tell us about your property.
-              </h2>
-              <p className="mt-4 max-w-lg leading-relaxed text-ink-soft">
-                We&apos;re happy to arrange a visit during office hours, Monday to Friday, 9am to 5pm.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <ButtonLink href={site.phoneHref} size="lg" icon={<Phone className="size-4" aria-hidden />}>
-                {site.phoneDisplay}
-              </ButtonLink>
-              <ButtonLink href="/contact" size="lg" variant="secondary">
-                Send a message
-              </ButtonLink>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ContactCta />
     </>
   );
 }

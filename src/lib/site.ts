@@ -8,6 +8,8 @@ export const site = {
   phoneDisplay: "07851 489297",
   phoneHref: "tel:+447851489297",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
+  /** Links to the business's Google Business Profile and social pages, for search engines. */
+  sameAs: [] as readonly string[],
   address: {
     line1: "38 Marine Drive East",
     town: "Barton on Sea",

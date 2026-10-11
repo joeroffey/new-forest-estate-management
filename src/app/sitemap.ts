@@ -1,12 +1,21 @@
 import type { MetadataRoute } from "next";
+import { SERVICES } from "@/content/services";
+import { AREAS } from "@/content/areas";
+import { absoluteUrl } from "@/lib/seo";
 
+/**
+ * Public pages only. No "last modified" dates: a build timestamp on every URL would tell
+ * search engines that everything changed on each deploy, and they'd stop trusting it.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.newforestestatemanagement.co.uk").replace(/\/+$/, "");
-  const now = new Date();
-  return ["", "/services", "/about", "/contact", "/privacy"].map((path) => ({
-    url: `${base}${path}`,
-    lastModified: now,
-    changeFrequency: path === "" ? "monthly" : "yearly",
-    priority: path === "" ? 1 : 0.7,
-  }));
+  const pages: Array<{ path: string; priority: number }> = [
+    { path: "/", priority: 1 },
+    { path: "/services", priority: 0.9 },
+    ...SERVICES.map((s) => ({ path: s.href, priority: 0.9 })),
+    ...AREAS.map((a) => ({ path: a.href, priority: 0.8 })),
+    { path: "/about", priority: 0.7 },
+    { path: "/contact", priority: 0.7 },
+    { path: "/privacy", priority: 0.3 },
+  ];
+  return pages.map(({ path, priority }) => ({ url: absoluteUrl(path), priority }));
 }
