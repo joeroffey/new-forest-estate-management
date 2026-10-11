@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: bash
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      ADMIN_SETUP_EMAIL: admin@example.com
+      RESEND_API_KEY: test-key
+      RESEND_API_URL: http://localhost:4010/resend
+      EMAIL_FROM: "NFEM Test <test@example.com>"
+      NOTION_TOKEN: test-token
+      NOTION_API_URL: http://localhost:4010/notion
+      GREENAPI_INSTANCE_ID: "1101000001"
+      GREENAPI_API_TOKEN: test-token
+      GREENAPI_API_URL: http://localhost:4010/green
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase (applies the migration)
+        run: |
+          if [ ! -f supabase/config.toml ]; then echo "N" | supabase init; fi
+          supabase start
+          supabase status -o env > /tmp/supa.env
+          sed 's/=.*//' /tmp/supa.env
+          set -a; . /tmp/supa.env; set +a
+          echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY:-$PUBLISHABLE_KEY}" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY:-$SECRET_KEY}" >> "$GITHUB_ENV"
+          echo "DB_URL=${DB_URL}" >> "$GITHUB_ENV"
+
+      - name: Database security tests
+        continue-on-error: true
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_test.sql 2>&1 | tee ci-db-tests.log
+
+      - name: Build
+        run: npm run build 2>&1 | tee ci-build.log
+
+      - name: Type check
+        run: npx tsc --noEmit 2>&1 | tee ci-typecheck.log
+
+      - name: Start app and mock services
+        run: |
+          node tests/mock-server.mjs > /tmp/mock.log 2>&1 &
+          npm start > /tmp/app.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000 > /dev/null && curl -sf http://localhost:4010/__requests > /dev/null; then echo "ready"; exit 0; fi
+            sleep 1
+          done
+          echo "App did not start"; cat /tmp/app.log; exit 1
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npx playwright test 2>&1 | tee ci-e2e.log
+
+      - name: Publish results to the ci-results branch
+        if: always()
+        run: |
+          mkdir -p ci-artifacts
+          cp ci-*.log ci-artifacts/ 2>/dev/null || true
+          cp /tmp/app.log /tmp/mock.log ci-artifacts/ 2>/dev/null || true
+          cp package-lock.json ci-artifacts/ 2>/dev/null || true
+          echo '{ "git": { "deploymentEnabled": false } }' > ci-artifacts/vercel.json
+          echo "${GITHUB_SHA}" > ci-artifacts/COMMIT
+          cd ci-artifacts
+          git init -q
+          git checkout -q -b ci-results
+          git add -A
+          git -c user.name="ci" -c user.email="ci@users.noreply.github.com" commit -qm "CI results for ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-results
+          path: ci-artifacts
+          retention-days: 7

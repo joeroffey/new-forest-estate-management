@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/*
+ * New Forest Estate Management — design tokens
+ * Palette taken directly from the logo: forest stroke, sage hill line, mist ground.
+ */
+@theme {
+  --color-forest: #325e4d;
+  --color-forest-deep: #1f3d31;
+  --color-forest-night: #16302a;
+  --color-sage: #abbaa3;
+  --color-sage-soft: #d5ded0;
+  --color-mist: #e9eae2;
+  --color-paper: #f5f6f1;
+  --color-line: #cdd5c8;
+  --color-line-soft: #e1e6dc;
+  --color-ink: #1e2925;
+  --color-ink-soft: #56645d;
+  --color-ink-faint: #7b877f;
+  --color-gorse: #9a6a10;
+  --color-gorse-soft: #f6ead0;
+  --color-brick: #a9432f;
+  --color-brick-soft: #f6e1db;
+  --color-heather: #6f5874;
+
+  --font-serif: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-albert), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 14px;
+  --shadow-lift: 0 1px 0 rgb(31 61 49 / 0.04), 0 8px 24px -12px rgb(31 61 49 / 0.18);
+
+  --animate-draw: draw 2.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  --animate-rise: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-mist);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern", "liga", "tnum" 0;
+  }
+  ::selection {
+    background: var(--color-sage-soft);
+    color: var(--color-forest-deep);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Numbers line up in tables and money columns */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Long-form copy on the public site */
+  .prose-site p {
+    margin-top: 1em;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+    max-width: 62ch;
+  }
+  .prose-site p:first-child {
+    margin-top: 0;
+  }
+
+  /* Hero line drawing: strokes draw in once on load */
+  .draw-line {
+    stroke-dasharray: var(--len, 1200);
+    stroke-dashoffset: var(--len, 1200);
+    animation: var(--animate-draw);
+    animation-delay: var(--delay, 0s);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .draw-line {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+  }
+}
