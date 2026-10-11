@@ -392,7 +392,7 @@ export function InvoiceEditor({
             <h2 className="font-serif text-xl text-forest-deep">Lines</h2>
             {errors.items ? <p className="text-sm font-medium text-brick">{errors.items}</p> : null}
           </header>
-          <div className="hidden grid-cols-[minmax(0,1fr)_5rem_7.5rem_6.5rem_4.5rem] gap-3 border-b border-line-soft px-5 py-2 text-xs font-semibold text-ink-soft sm:grid sm:px-6">
+          <div className="hidden grid-cols-[minmax(0,1fr)_4.5rem_7.5rem_6.5rem_6.25rem] gap-3 border-b border-line-soft px-5 py-2 text-xs font-semibold text-ink-soft sm:grid sm:px-6">
             <span>Description</span>
             <span>Qty</span>
             <span>Unit price</span>
@@ -403,14 +403,14 @@ export function InvoiceEditor({
             {lines.map((l, i) => {
               const err = (f: string) => errors[`items.${i}.${f}`];
               return (
-                <li key={l.key} className="grid gap-3 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_5rem_7.5rem_6.5rem_4.5rem] sm:items-start sm:px-6">
+                <li key={l.key} className="grid gap-3 px-5 py-3 sm:grid-cols-[minmax(0,1fr)_4.5rem_7.5rem_6.5rem_6.25rem] sm:items-start sm:px-6">
                   <div>
                     <label className="sr-only" htmlFor={`${l.key}-d`}>
                       Line {i + 1} description
                     </label>
                     <textarea
                       id={`${l.key}-d`}
-                      rows={l.description.length > 70 ? 2 : 1}
+                      rows={Math.min(4, Math.max(1, Math.ceil(l.description.length / 34)))}
                       className={clsx(inputClasses, "resize-y")}
                       placeholder="What's this for?"
                       value={l.description}

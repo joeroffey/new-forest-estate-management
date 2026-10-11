@@ -93,7 +93,7 @@ export default async function AdminInvoicePage({ params }: { params: Promise<{ i
         <div className="space-y-6">
           <Panel title="Record">
             <DetailList
-              className="sm:grid-cols-[minmax(0,7rem)_minmax(0,1fr)]"
+              stacked
               items={[
                 ["Customer", customer.full_name],
                 ["Total", formatMoney(invoice.total)],

@@ -31,7 +31,7 @@ export function InvoiceDocument({ invoice, items, customer, settings }: { invoic
           </div>
         </header>
 
-        <div className="mt-10 grid gap-8 border-t border-line pt-8 text-sm sm:grid-cols-3">
+        <div className="mt-10 grid gap-8 border-t border-line pt-8 text-sm sm:grid-cols-[1fr_1fr_minmax(13rem,auto)]">
           <div>
             <p className="text-xs font-semibold text-ink-soft">Billed to</p>
             <p className="mt-2 font-semibold text-ink">{customer.full_name}</p>
@@ -52,12 +52,12 @@ export function InvoiceDocument({ invoice, items, customer, settings }: { invoic
           </div>
           <dl className="space-y-1.5">
             <div className="flex justify-between gap-4">
-              <dt className="text-ink-soft">Invoice date</dt>
-              <dd className="font-semibold">{formatDateShort(invoice.issue_date)}</dd>
+              <dt className="whitespace-nowrap text-ink-soft">Invoice date</dt>
+              <dd className="whitespace-nowrap font-semibold">{formatDateShort(invoice.issue_date)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-ink-soft">Payment due</dt>
-              <dd className="font-semibold">{formatDateShort(invoice.due_date)}</dd>
+              <dt className="whitespace-nowrap text-ink-soft">Payment due</dt>
+              <dd className="whitespace-nowrap font-semibold">{formatDateShort(invoice.due_date)}</dd>
             </div>
             {invoice.period_label ? (
               <div className="flex justify-between gap-4">

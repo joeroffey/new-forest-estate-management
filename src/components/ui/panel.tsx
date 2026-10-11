@@ -35,8 +35,20 @@ export function Panel({
   );
 }
 
-export function DetailList({ items, className }: { items: Array<[ReactNode, ReactNode]>; className?: string }) {
+export function DetailList({ items, className, stacked = false }: { items: Array<[ReactNode, ReactNode]>; className?: string; stacked?: boolean }) {
   const visible = items.filter(([, v]) => v !== null && v !== undefined && v !== "" && v !== false);
+  if (stacked) {
+    return (
+      <dl className={clsx("space-y-3 text-sm", className)}>
+        {visible.map(([k, v], i) => (
+          <div key={i}>
+            <dt className="text-ink-soft">{k}</dt>
+            <dd className="mt-0.5 min-w-0 font-medium break-words whitespace-pre-line text-ink">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
   return (
     <dl className={clsx("grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]", className)}>
       {visible.map(([k, v], i) => (

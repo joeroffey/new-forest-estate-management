@@ -235,7 +235,7 @@ export async function renderInvoicePdf({ invoice, items, customer, settings }: I
     textRight(p, "Qty", colQty + 20, at + 1, { font: bold, size: 9, color: FOREST_DEEP });
     textRight(p, "Unit price", colUnit + 30, at + 1, { font: bold, size: 9, color: FOREST_DEEP });
     textRight(p, "Amount", right - 8, at + 1, { font: bold, size: 9, color: FOREST_DEEP });
-    return at - 26;
+    return at - 14;
   };
 
   const newPage = () => {
@@ -253,23 +253,25 @@ export async function renderInvoicePdf({ invoice, items, customer, settings }: I
     if (y - rowH < M + 60) {
       y = drawTableHeader(page, newPage());
     }
-    let ly = y;
+    // y is the top of the row; text sits 12pt below it and the separator is the row's bottom edge.
+    const baseline = y - 12;
+    let ly = baseline;
     for (const l of lines) {
       text(page, l, M + 8, ly, { size: 9.5 });
       ly -= 12.5;
     }
     const qty = Number(item.quantity);
-    textRight(page, Number.isInteger(qty) ? String(qty) : qty.toFixed(2), colQty + 20, y, { size: 9.5 });
-    textRight(page, formatMoney(item.unit_price), colUnit + 30, y, { size: 9.5 });
-    textRight(page, formatMoney(item.amount), right - 8, y, { size: 9.5, font: bold });
+    textRight(page, Number.isInteger(qty) ? String(qty) : qty.toFixed(2), colQty + 20, baseline, { size: 9.5 });
+    textRight(page, formatMoney(item.unit_price), colUnit + 30, baseline, { size: 9.5 });
+    textRight(page, formatMoney(item.amount), right - 8, baseline, { size: 9.5, font: bold });
     y -= rowH;
-    page.drawLine({ start: { x: M, y: y + 6 }, end: { x: right, y: y + 6 }, thickness: 0.5, color: LINE });
+    page.drawLine({ start: { x: M, y }, end: { x: right, y }, thickness: 0.5, color: LINE });
   }
 
   /* ---------- Totals ---------- */
   const totalsNeeded = 80;
   if (y - totalsNeeded < M + 40) y = newPage();
-  y -= 8;
+  y -= 18;
   const labelX = right - 200;
   const vatRate = Number(invoice.vat_rate);
   text(page, "Subtotal", labelX, y, { size: 10, color: INK_SOFT });

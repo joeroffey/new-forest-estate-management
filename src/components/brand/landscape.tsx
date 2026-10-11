@@ -16,7 +16,7 @@ export function Landscape({ className }: { className?: string }) {
   );
   return (
     <svg
-      viewBox="0 0 1200 520"
+      viewBox="0 190 1200 280"
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"

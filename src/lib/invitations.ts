@@ -144,7 +144,11 @@ export async function sendAdminInvite(opts: {
   const result = await sendEmail({ to: opts.email, subject: `Your ${site.name} admin login`, ...email });
   await logActivity({
     kind: result.ok ? "admin.invited" : "admin.invite_failed",
-    message: result.ok ? `${opts.actor.name} invited ${opts.fullName} as an administrator` : `Admin invitation to ${opts.email} failed: ${result.error}`,
+    message: result.ok
+      ? opts.setup
+        ? `First-time setup link sent to ${opts.fullName} (${opts.email})`
+        : `${opts.actor.name} invited ${opts.fullName} as an administrator`
+      : `Admin invitation to ${opts.email} failed: ${result.error}`,
     actorId: opts.actor.id,
     actorName: opts.actor.name,
   });

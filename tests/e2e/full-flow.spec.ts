@@ -84,7 +84,10 @@ let customerId = "";
 let invoiceId = "";
 
 async function newContext(browser: Browser, mobile = false) {
-  return browser.newContext(mobile ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } : {});
+  const base = { locale: "en-GB", timezoneId: "Europe/London", baseURL: process.env.BASE_URL ?? "http://localhost:3000" };
+  return browser.newContext(
+    mobile ? { ...base, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } : { ...base, viewport: { width: 1360, height: 900 } },
+  );
 }
 
 test.describe.serial("New Forest Estate Management", () => {

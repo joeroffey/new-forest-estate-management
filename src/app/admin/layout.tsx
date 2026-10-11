@@ -21,7 +21,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   );
   return (
     <div className="min-h-dvh bg-mist lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
-      <aside className="sticky top-0 hidden h-dvh flex-col bg-forest-night p-4 lg:flex">
+      <div className="hidden bg-forest-night lg:block">
+      <aside className="sticky top-0 flex h-dvh flex-col p-4">
         <Link href="/admin" className="mb-8 block rounded-md px-2 pt-2" aria-label="Admin dashboard">
           <Logo inverse compact />
         </Link>
@@ -38,6 +39,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <div className="mt-auto">{footer}</div>
       </aside>
+      </div>
       <div className="min-w-0">
         <AdminMobileNav footer={footer} />
         <main className="mx-auto max-w-[78rem] px-4 py-8 sm:px-8 lg:py-10">{children}</main>

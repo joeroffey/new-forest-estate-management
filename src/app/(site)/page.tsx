@@ -30,7 +30,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <Landscape className="mt-4 block h-auto w-full min-w-[720px] -translate-x-[8%] sm:min-w-0 sm:translate-x-0 md:-mt-6" />
+        <Landscape className="mt-10 block h-auto w-full min-w-[720px] -translate-x-[8%] sm:min-w-0 sm:translate-x-0 md:mt-6" />
       </section>
 
       {/* --------------------------------------------------------- Services */}

@@ -43,22 +43,31 @@ export function ActionForm({
   resetOnSuccess?: boolean;
   toastOnSuccess?: boolean;
 }) {
-  const [state, dispatch, pending] = useActionState(action, {});
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Feedback is given as soon as the server answers, not after React re-renders this form:
+  // the server's refreshed page can remove the form (e.g. "Mark as paid" disappears once paid),
+  // and the message must still be shown.
+  async function run(prev: ActionState, formData: FormData): Promise<ActionState> {
+    const result = (await action(prev, formData)) ?? prev;
+    if (result.ok) {
+      if (result.message && toastOnSuccess) toast.success(result.message);
+      if (resetOnSuccess) formRef.current?.reset();
+      onSuccess?.(result);
+    } else if (result.error) {
+      toast.error(result.error);
+    } else if (result.fieldErrors && Object.keys(result.fieldErrors).length) {
+      toast.error("Please check the highlighted fields.");
+    }
+    return result;
+  }
+
+  const [state, dispatch, pending] = useActionState(run, {});
   const lastState = useRef<ActionState>(state);
 
   useEffect(() => {
     if (state === lastState.current) return;
     lastState.current = state;
-    if (state.ok) {
-      if (state.message && toastOnSuccess) toast.success(state.message);
-      if (resetOnSuccess) formRef.current?.reset();
-      onSuccess?.(state);
-    } else if (state.error) {
-      toast.error(state.error);
-    } else if (state.fieldErrors && Object.keys(state.fieldErrors).length) {
-      toast.error("Please check the highlighted fields.");
-    }
     if (!state.ok && state.fieldErrors) {
       const first = Object.keys(state.fieldErrors)[0];
       if (first) {
@@ -66,7 +75,7 @@ export function ActionForm({
         el?.focus();
       }
     }
-  }, [state, onSuccess, resetOnSuccess, toastOnSuccess]);
+  }, [state]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
