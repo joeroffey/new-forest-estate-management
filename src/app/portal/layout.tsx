@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Plus } from "lucide-react";
 import { requireCustomer } from "@/lib/auth";
 import { Logo } from "@/components/brand/logo";
 import { ButtonLink } from "@/components/ui/button";
 import { NavLink } from "@/components/app/nav-link";
 import { SignOutButton } from "@/components/app/sign-out-button";
+import { NavigationProgress } from "@/components/app/navigation-progress";
 import { PortalMobileCta } from "@/components/app/portal-mobile-cta";
 import { site } from "@/lib/site";
 
@@ -24,6 +26,9 @@ export default async function PortalLayout({ children }: { children: React.React
   const { customer } = await requireCustomer();
   return (
     <div className="min-h-dvh bg-mist">
+      <Suspense fallback={null}>
+        <NavigationProgress />
+      </Suspense>
       <header className="border-b border-line bg-paper">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link href="/portal" className="rounded-md" aria-label="Your account home">

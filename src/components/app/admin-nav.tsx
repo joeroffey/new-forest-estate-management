@@ -1,10 +1,10 @@
 "use client";
 
 import clsx from "clsx";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CalendarDays, CalendarRange, LayoutDashboard, Menu, Receipt, Settings, Users, X } from "lucide-react";
+import { CalendarDays, CalendarRange, LayoutDashboard, Loader2, Menu, Receipt, Settings, Users, X, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 
 export const ADMIN_NAV = [
@@ -15,6 +15,12 @@ export const ADMIN_NAV = [
   { href: "/admin/invoices", label: "Invoices", icon: Receipt },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
+
+/** The menu icon, swapped for a spinner while that page is on its way. */
+function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
+  const { pending } = useLinkStatus();
+  return pending ? <Loader2 className="size-[1.15rem] animate-spin" aria-hidden /> : <Icon className="size-[1.15rem]" aria-hidden />;
+}
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -34,7 +40,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
                 active ? "bg-white/10 text-white" : "text-sage hover:bg-white/5 hover:text-mist",
               )}
             >
-              <Icon className="size-[1.15rem]" aria-hidden />
+              <NavIcon icon={Icon} />
               {item.label}
             </Link>
           </li>

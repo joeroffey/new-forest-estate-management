@@ -31,15 +31,15 @@
 
   --animate-draw: draw 2.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
   --animate-rise: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  /* Loading placeholders appear after a beat, so quick page changes don't flash. */
-  --animate-appear: appear 0.2s ease-out 0.12s both;
+  /* Top-of-screen bar while the next page loads: jumps in quickly, then creeps. */
+  --animate-nav-progress: nav-progress 10s cubic-bezier(0.08, 0.82, 0.17, 1) both;
 
-  @keyframes appear {
+  @keyframes nav-progress {
     from {
-      opacity: 0;
+      transform: scaleX(0.08);
     }
     to {
-      opacity: 1;
+      transform: scaleX(0.92);
     }
   }
   @keyframes draw {

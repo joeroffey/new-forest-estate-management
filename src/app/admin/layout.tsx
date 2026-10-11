@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CalendarPlus, FilePlus2 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { site } from "@/lib/site";
 import { Logo } from "@/components/brand/logo";
 import { AdminMobileNav, AdminSidebarNav } from "@/components/app/admin-nav";
 import { SignOutButton } from "@/components/app/sign-out-button";
+import { NavigationProgress } from "@/components/app/navigation-progress";
 
 export const metadata: Metadata = { title: { default: "Admin", template: `%s | Admin | ${site.name}` }, robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -21,6 +23,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   );
   return (
     <div className="min-h-dvh bg-mist lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <Suspense fallback={null}>
+        <NavigationProgress />
+      </Suspense>
       <div className="hidden bg-forest-night lg:block">
       <aside className="sticky top-0 flex h-dvh flex-col p-4">
         <Link href="/admin" className="mb-8 block rounded-md px-2 pt-2" aria-label="Admin dashboard">
