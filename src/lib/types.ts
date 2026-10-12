@@ -30,6 +30,53 @@ export interface Settings {
   notion_enabled: boolean;
   notion_database_id: string | null;
   notion_title_prop: string | null;
+  /** When cleaning teams set off ("09:00:00"). */
+  clean_day_start: string;
+  /** When the cleaning day should be finished by ("17:00:00"). */
+  clean_day_end: string;
+  /** Post each morning's cleaning plan to the WhatsApp group. */
+  cleaning_plan_whatsapp: boolean;
+  updated_at: string;
+}
+
+export interface CleaningTeam {
+  id: string;
+  name: string;
+  home_postcode: string | null;
+  lat: number | null;
+  lng: number | null;
+  located_from: string | null;
+  works_by_default: boolean;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** One changeover clean in the day's plan. */
+export interface CleaningJob {
+  booking_id: string;
+  day: string;
+  team_id: string | null;
+  run_order: number | null;
+  run_count: number | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  drive_minutes: number | null;
+  drive_from: string | null;
+  route_url: string | null;
+  late_minutes: number;
+  warning: string | null;
+  next_booking_id: string | null;
+  pinned_team_id: string | null;
+  pinned_day: string | null;
+  signature: string | null;
+  planned_at: string;
+}
+
+export interface CleaningDay {
+  day: string;
+  team_ids: string[] | null;
+  whatsapp_sent_at: string | null;
   updated_at: string;
 }
 
@@ -88,6 +135,11 @@ export interface Property {
   standard_setup: string | null;
   access_notes: string | null;
   cleaner_notes: string | null;
+  /** How long a changeover clean takes (admins set this; null means estimate from the rooms). */
+  clean_minutes: number | null;
+  lat: number | null;
+  lng: number | null;
+  located_from: string | null;
   default_checkout_time: string;
   default_arrival_time: string;
   archived: boolean;

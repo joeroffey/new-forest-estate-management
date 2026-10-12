@@ -13,7 +13,8 @@ import { Panel } from "@/components/ui/panel";
 import { ActionButton } from "@/components/ui/action-button";
 import { Badge } from "@/components/ui/badge";
 import { BusinessForm, InviteAdminForm, InvoicingForm, NotificationsForm, NotionForm, WhatsAppForm } from "@/components/app/settings-forms";
-import type { Profile } from "@/lib/types";
+import { CleaningDayForm, CleaningTeamForm } from "@/components/app/cleaning-forms";
+import type { CleaningTeam, Profile } from "@/lib/types";
 
 export const metadata = { title: "Settings" };
 
@@ -29,12 +30,14 @@ function Status({ ok, children }: { ok: boolean; children: React.ReactNode }) {
 export default async function SettingsPage() {
   await requireAdmin();
   const supabase = await createClient();
-  const [s, { data: adminData }, baseUrl] = await Promise.all([
+  const [s, { data: adminData }, baseUrl, { data: teamData }] = await Promise.all([
     getSettings(),
     supabase.from("profiles").select("*").eq("role", "admin").order("created_at"),
     getBaseUrl(),
+    supabase.from("cleaning_teams").select("*").eq("archived", false).order("created_at"),
   ]);
   const admins = (adminData ?? []) as unknown as Profile[];
+  const teams = (teamData ?? []) as unknown as CleaningTeam[];
   const configured = { greenapi: isWhatsAppConfigured("greenapi"), whapi: isWhatsAppConfigured("whapi") };
   const waStatus = configured[s.whatsapp_provider] ? await getWhatsAppStatus(s.whatsapp_provider) : null;
   const emailOk = isEmailConfigured();
@@ -46,6 +49,7 @@ export default async function SettingsPage() {
     { id: "notifications", label: "Emails" },
     { id: "whatsapp", label: "WhatsApp" },
     { id: "notion", label: "Notion" },
+    { id: "cleaning", label: "Cleaning teams" },
     { id: "team", label: "Team" },
   ];
 
@@ -145,6 +149,34 @@ export default async function SettingsPage() {
             )}
           </div>
           <NotionForm s={s} />
+        </Panel>
+
+        <Panel
+          id="cleaning"
+          title="Cleaning teams"
+          description="Each day's cleans are shared between the teams working and put in the best order: houses ready before the next guests arrive, with as little driving as possible."
+          className="scroll-mt-6"
+        >
+          {teams.length === 0 ? (
+            <div className="mb-5">
+              <Status ok={false}>Add at least one team so the cleaning plan can be made.</Status>
+            </div>
+          ) : (
+            <ul className="mb-6 space-y-4">
+              {teams.map((team) => (
+                <li key={team.id} className="rounded-xl border border-line p-4">
+                  <CleaningTeamForm team={team} />
+                  {team.home_postcode && team.located_from && team.lat === null ? (
+                    <p className="mt-2 text-sm text-gorse">We couldn&apos;t find {team.home_postcode} on the map. Check the postcode.</p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+          <h3 className="mb-3 text-sm font-semibold text-forest-deep">Add a team</h3>
+          <CleaningTeamForm />
+          <h3 className="mt-8 mb-3 border-t border-line-soft pt-6 text-sm font-semibold text-forest-deep">Working day</h3>
+          <CleaningDayForm s={s} />
         </Panel>
 
         <Panel id="team" title="Team" description="People who can log in to this admin area." className="scroll-mt-6">

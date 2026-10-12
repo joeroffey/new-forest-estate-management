@@ -4,5 +4,11 @@
     "deploymentEnabled": {
       "ci-results": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/cleaning-plan",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }

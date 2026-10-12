@@ -121,7 +121,28 @@ do $$ begin
   end;
 end $$;
 
+-- Customers can't see or change the cleaning teams or plans
+do $$ declare n int; begin
+  if (select count(*) from public.cleaning_teams) <> 0 then raise exception 'Customer can see cleaning teams'; end if;
+  if (select count(*) from public.cleaning_jobs) <> 0 then raise exception 'Customer can see cleaning plans'; end if;
+  begin
+    insert into public.cleaning_teams (name) values ('Sneaky');
+    raise exception 'Customer added a cleaning team';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
+-- An owner editing their property can't change its clean time or map location
+update public.properties set clean_minutes = 15, lat = 1, lng = 1, located_from = 'X', town = 'Lymington'
+ where id = '20000000-0000-0000-0000-0000000000a1';
 reset role;
+do $$ declare r record; begin
+  select * into r from public.properties where id = '20000000-0000-0000-0000-0000000000a1';
+  if r.town is distinct from 'Lymington' then raise exception 'Owner edit of town was lost'; end if;
+  if r.clean_minutes is not null or r.lat is not null or r.located_from is not null then
+    raise exception 'Owner changed admin-only property fields';
+  end if;
+end $$;
 
 -- Admin -----------------------------------------------------------------------
 set role authenticated;
@@ -178,6 +199,14 @@ do $$ declare v_id uuid; v_id2 uuid; r record; begin
 
   -- mark Alice's invoice as sent so she can see it
   update public.invoices set status = 'sent', sent_at = now() where id = v_id;
+
+  -- admins manage teams and set clean times
+  if (select count(*) from public.cleaning_teams) < 1 then raise exception 'The starter cleaning team is missing'; end if;
+  insert into public.cleaning_teams (name, home_postcode) values ('Team 2', 'SO41 9AA');
+  update public.properties set clean_minutes = 150 where id = '20000000-0000-0000-0000-0000000000a1';
+  if (select clean_minutes from public.properties where id = '20000000-0000-0000-0000-0000000000a1') <> 150 then
+    raise exception 'Admin could not set the clean time';
+  end if;
 end $$;
 
 reset role;

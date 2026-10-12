@@ -4,9 +4,13 @@ import { useRouter } from "next/navigation";
 import { ActionForm, FormError, FormSection, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
 import { ButtonLink } from "@/components/ui/button";
 import { ARRIVAL_TIMES, CHECKOUT_TIMES } from "@/lib/bookings/schema";
-import { formatTimeFriendly } from "@/lib/format";
+import { formatDuration, formatTimeFriendly } from "@/lib/format";
+import { estimateCleanMinutes } from "@/lib/cleaning/planner";
 import { saveProperty } from "@/lib/properties/actions";
 import type { Property } from "@/lib/types";
+
+/** 45 minutes to 4 hours in quarter hours, then half hours up to 8 hours. */
+const CLEAN_MINUTES = [...Array.from({ length: 13 }, (_, i) => 45 + i * 15), ...Array.from({ length: 8 }, (_, i) => 270 + i * 30)];
 
 export function PropertyForm({
   property,
@@ -24,6 +28,11 @@ export function PropertyForm({
   const router = useRouter();
   const checkout = (property?.default_checkout_time ?? "10:00").slice(0, 5);
   const arrival = (property?.default_arrival_time ?? "16:00").slice(0, 5);
+  const estimate = estimateCleanMinutes(property?.bedrooms, property?.bathrooms);
+  const cleanOptions = [
+    { value: "", label: `Estimate from the rooms (${formatDuration(estimate)})` },
+    ...CLEAN_MINUTES.map((m) => ({ value: String(m), label: formatDuration(m) })),
+  ];
   return (
     <ActionForm
       action={saveProperty}
@@ -68,6 +77,20 @@ export function PropertyForm({
             options={(ARRIVAL_TIMES.includes(arrival) ? ARRIVAL_TIMES : [arrival, ...ARRIVAL_TIMES]).map((t) => ({ value: t, label: `From ${formatTimeFriendly(t)}` }))}
           />
         </div>
+        {audience === "admin" ? (
+          <SelectField
+            label="How long a changeover clean takes"
+            name="clean_minutes"
+            defaultValue={property?.clean_minutes ? String(property.clean_minutes) : ""}
+            options={
+              property?.clean_minutes && !CLEAN_MINUTES.includes(property.clean_minutes)
+                ? [...cleanOptions, { value: String(property.clean_minutes), label: formatDuration(property.clean_minutes) }]
+                : cleanOptions
+            }
+            hint="Used to plan the cleaners' day. Only admins see this."
+            fieldClassName="sm:max-w-sm"
+          />
+        ) : null}
         <TextAreaField
           label="Standard bed setup"
           name="standard_setup"

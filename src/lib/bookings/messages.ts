@@ -8,7 +8,7 @@ import {
   formatAddress,
 } from "@/lib/format";
 import { extraLabel, sourceLabel } from "@/lib/bookings/schema";
-import type { Booking, Customer, Property } from "@/lib/types";
+import type { Booking, CleaningJob, Customer, Property } from "@/lib/types";
 
 export type SyncKind = "created" | "updated" | "cancelled";
 
@@ -22,6 +22,8 @@ export interface BookingContext {
   arrivesOnChangeoverDay: boolean;
   /** True when this change is within the late-change window. */
   lateChange: boolean;
+  /** This changeover's place in the day's cleaning plan, if it has been planned. */
+  plan?: (CleaningJob & { team_name: string | null }) | null;
 }
 
 export function isSameDayTurnaround(ctx: BookingContext): boolean {
@@ -39,7 +41,7 @@ export function guestsText(b: Pick<Booking, "adults" | "children" | "infants" | 
   return `${formatGuests(b)}, ${dogs}`;
 }
 
-export function propertyAddress(p: Property): string {
+export function propertyAddress(p: Pick<Property, "address_line1" | "address_line2" | "town" | "postcode">): string {
   return formatAddress([p.address_line1, p.address_line2, p.town, p.postcode]);
 }
 

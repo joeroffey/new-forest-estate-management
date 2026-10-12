@@ -381,6 +381,17 @@ test.describe.serial("New Forest Estate Management", () => {
     expect(textOf("Access")).toBe("Key safe by the side gate, code 1234");
     expect(textOf("Extras")).toBe("Travel cot");
     expect(textOf("Next arrival")).toMatch(/^Same day: next guests arrive \d/);
+    // Its place in the day's cleaning plan
+    const planned = props as unknown as Record<string, { date?: { start: string; end: string | null }; select?: { name: string } | null }>;
+    expect(planned["Clean start"]?.date?.start).toBe(`${d13}T10:00:00`);
+    expect(planned["Clean start"]?.date?.end).toMatch(new RegExp(`^${d13}T\\d\\d:\\d\\d:00$`));
+    expect(planned.Team?.select?.name).toBe("Team 1");
+    expect(textOf("Run order")).toBe("1 of 1");
+
+    // The admin's cleaning plan shows the clean, with the same-day deadline
+    await adminPage.goto(`/admin/cleaning?date=${d13}`);
+    await expect(adminPage.getByRole("link", { name: "9 Island Point" })).toBeVisible();
+    await expect(adminPage.getByText("Next guests 4pm")).toBeVisible();
 
     const confirmation = await waitForEmail("alice@example.com", /2 bookings received: 9 Island Point/);
     expect(confirmation.html).toContain("Bedroom 2: split the double into two singles");
@@ -451,6 +462,83 @@ test.describe.serial("New Forest Estate Management", () => {
     const csv = await page.request.get("/api/bookings/export?view=upcoming");
     expect(csv.status()).toBe(200);
     expect(await csv.text()).toContain("9 Island Point");
+  });
+
+  test("admin plans the day's cleaning across two teams", async () => {
+    const page = adminPage;
+    type Patch = { properties?: Record<string, { rich_text?: Array<{ text: { content: string } }>; select?: { name: string } | null; date?: { start: string } }> };
+    const text = (b: Patch, name: string) => b.properties?.[name]?.rich_text?.map((t) => t.text.content).join("") ?? "";
+    const notionPatches = async () =>
+      (await mockRequests()).filter((r) => r.method === "PATCH" && r.path.startsWith("/notion/pages/")).map((r) => r.body as unknown as Patch);
+
+    // Cancelling the second stay removed the first stay's same-day deadline, and Notion was told.
+    await waitFor(
+      async () => (await notionPatches()).find((b) => b.properties?.Stay?.date?.start === d10 && text(b, "Next arrival") === "No booking yet"),
+      "Notion update for the clean whose deadline went away",
+    );
+
+    // Add a second team
+    await page.goto("/admin/settings");
+    const cleaning = page.locator("#cleaning");
+    await expect(cleaning.locator('input[name="name"]').first()).toHaveValue("Team 1");
+    const addTeam = cleaning.locator("form", { has: page.getByRole("button", { name: "Add team" }) });
+    await addTeam.locator('input[name="name"]').fill("Team 2");
+    await addTeam.locator('input[name="home_postcode"]').fill("nowhere");
+    await addTeam.getByRole("button", { name: "Add team" }).click();
+    await expect(addTeam.getByText("Enter a full UK postcode")).toBeVisible();
+    await addTeam.locator('input[name="home_postcode"]').fill("so41 9zz");
+    await addTeam.getByRole("button", { name: "Add team" }).click();
+    await toast(page, "Team 2 added");
+    await expect(cleaning.locator('input[name="home_postcode"]').nth(1)).toHaveValue("SO41 9ZZ");
+    await shot(page, "17-admin-cleaning-teams");
+
+    // The day's plan
+    await page.goto(`/admin/cleaning?date=${d13}`);
+    await expect(page.getByRole("heading", { name: "Cleaning plan" })).toBeVisible();
+    await expect(page.getByText("Next guests 4pm")).toHaveCount(0);
+    const teamPanel = (name: string) => page.locator(`[data-team="${name}"]`);
+    await expect(teamPanel("Team 1").or(teamPanel("Team 2")).getByRole("link", { name: "9 Island Point" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Route in Google Maps" }).first()).toHaveAttribute("href", /google\.com\/maps\/dir\//);
+
+    // Move the clean to Team 2: the day is re-planned and Notion gets the new team
+    await page.getByLabel("Which team cleans 9 Island Point").selectOption({ label: "Give to Team 2" });
+    await toast(page, "Clean moved and the day re-planned");
+    await expect(teamPanel("Team 2").getByRole("link", { name: "9 Island Point" })).toBeVisible();
+    await expect(teamPanel("Team 2").getByText("Given to this team")).toBeVisible();
+    await waitFor(async () => (await notionPatches()).find((b) => b.properties?.Team?.select?.name === "Team 2"), "Notion update with the new team");
+    await shot(page, "18-admin-cleaning-plan");
+
+    // Team 2 has the day off: everything goes back to Team 1
+    await page.locator("label", { hasText: "Team 2" }).first().click();
+    await page.getByRole("button", { name: "Save and re-plan" }).click();
+    await toast(page, /Teams for .* saved/);
+    await expect(teamPanel("Team 1").getByRole("link", { name: "9 Island Point" })).toBeVisible();
+    await expect(teamPanel("Team 2")).toHaveCount(0);
+    await page.getByRole("button", { name: "Use the usual teams" }).click();
+    await toast(page, /Back to the usual teams/);
+
+    // Send the plan to the cleaners' WhatsApp group
+    await page.getByRole("button", { name: "Send to WhatsApp" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Send to WhatsApp" }).click();
+    await toast(page, /sent to NFEM Cleaners/);
+    const plan = await waitForWhatsApp("Cleaning plan for");
+    expect(plan).toContain("9 Island Point");
+    expect(plan).toContain("Route: https://www.google.com/maps/dir/");
+
+    // How long the house takes changes the plan
+    await page.goto(`/admin/customers/${customerId}`);
+    await page.getByRole("link", { name: /9 Island Point/ }).first().click();
+    await page.getByLabel("How long a changeover clean takes").selectOption({ label: "3 h" });
+    await page.getByRole("button", { name: "Save property" }).click();
+    await toast(page, "Property saved");
+    await page.goto(`/admin/cleaning?date=${d13}`);
+    await expect(page.getByText(/clean 3 h/)).toBeVisible();
+
+    // The morning job needs the secret, and only sends when there are cleans that day
+    expect((await page.request.get("/api/cron/cleaning-plan")).status()).toBe(401);
+    const cron = await page.request.get("/api/cron/cleaning-plan", { headers: { Authorization: "Bearer test-cron-secret" } });
+    expect(cron.status()).toBe(200);
+    expect(await cron.json()).toMatchObject({ sent: false, reason: "No cleans today" });
   });
 
   test("admin invoices the month from the bookings list and sends it", async () => {

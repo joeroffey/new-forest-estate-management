@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSettings } from "@/lib/settings";
 import { getBaseUrl } from "@/lib/env";
@@ -26,7 +27,8 @@ import {
   type SyncKind,
 } from "@/lib/bookings/messages";
 import { extraLabel } from "@/lib/bookings/schema";
-import type { Booking, Customer, CustomerContact, Property, Settings } from "@/lib/types";
+import { daysAffectedByBookings, replanDays, upcomingCleaningDays } from "@/lib/cleaning/plan";
+import type { Booking, CleaningJob, Customer, CustomerContact, Property, Settings } from "@/lib/types";
 
 export type ChannelStatus = "sent" | "failed" | "off";
 
@@ -55,6 +57,15 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
   if (error) throw new Error(`Could not load bookings: ${error.message}`);
   const rows = (data ?? []) as unknown as BookingRow[];
   if (rows.length === 0) return [];
+
+  // Each changeover's place in the cleaning plan (and its team's name).
+  const { data: planData } = await admin.from("cleaning_jobs").select("*, team:cleaning_teams(name)").in("booking_id", bookingIds);
+  const plans = new Map(
+    ((planData ?? []) as unknown as Array<CleaningJob & { team: { name: string } | null }>).map(({ team, ...job }) => [
+      job.booking_id,
+      { ...job, team_name: team?.name ?? null },
+    ]),
+  );
 
   const propertyIds = [...new Set(rows.map((r) => r.property_id))];
   const minArrival = rows.reduce((m, r) => (r.arrival_date < m ? r.arrival_date : m), rows[0]!.arrival_date);
@@ -85,6 +96,7 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
       next: next ? { arrival_date: next.arrival_date, arrival_time: next.arrival_time } : null,
       arrivesOnChangeoverDay,
       lateChange,
+      plan: plans.get(row.id) ?? null,
     };
   });
 }
@@ -136,6 +148,27 @@ function notionInput(ctx: BookingContext, kind: SyncKind | "refresh", baseUrl: s
     leadGuest: b.guest_name ?? "",
     customerPhone: ctx.customer.phone || ctx.customer.phone_secondary || null,
     customerEmail: ctx.customer.email || null,
+    ...planFields(ctx),
+  };
+}
+
+/** The cleaning-plan columns: planned time, team, order, drive and the day's route. */
+function planFields(ctx: BookingContext): Pick<NotionBookingInput, "cleanStart" | "cleanEnd" | "team" | "runOrder" | "drive" | "dayRoute" | "warning"> {
+  const b = ctx.booking;
+  const p = ctx.plan && ctx.plan.day === b.departure_date ? ctx.plan : null;
+  if (!p || !p.starts_at) {
+    return { cleanStart: `${b.departure_date}T${b.checkout_time.slice(0, 5)}`, cleanEnd: null, team: null, runOrder: "", drive: "", dayRoute: null, warning: p?.warning ?? "" };
+  }
+  const drive =
+    p.drive_minutes === null ? "" : p.drive_minutes === 0 ? `Next door to ${p.drive_from ?? "the last clean"}` : `${p.drive_minutes} min from ${p.drive_from ?? "the last clean"}`;
+  return {
+    cleanStart: `${p.day}T${p.starts_at.slice(0, 5)}`,
+    cleanEnd: p.ends_at ? `${p.day}T${p.ends_at.slice(0, 5)}` : null,
+    team: p.team_name,
+    runOrder: p.run_order && p.run_count ? `${p.run_order} of ${p.run_count}` : "",
+    drive,
+    dayRoute: p.route_url,
+    warning: p.warning ?? "",
   };
 }
 
@@ -355,6 +388,14 @@ export async function syncBookings(
   const result: SyncResult = { whatsapp: "off", notion: "off", customerEmail: "off", adminEmail: "off", problems: [] };
   if (bookingIds.length === 0) return result;
 
+  // Re-plan the cleaning for every day this change touches, before telling Notion about it.
+  let replanned: string[] = [];
+  try {
+    replanned = (await replanDays(await daysAffectedByBookings(bookingIds))).changed;
+  } catch (err) {
+    console.error("[cleaning] re-planning failed", err);
+  }
+
   let settings: Settings;
   let contexts: BookingContext[];
   try {
@@ -407,7 +448,58 @@ export async function syncBookings(
   );
 
   if (result.problems.length) console.warn("[bookings] sync problems", result.problems);
+
+  // Other cleans that moved in the plan (a new order, a different team) get updated in Notion too.
+  const others = replanned.filter((id) => !bookingIds.includes(id));
+  if (others.length && channels.includes("notion")) runLater(() => refreshNotionBookings(others));
   return result;
+}
+
+/** Runs work after the response has been sent when possible, so people aren't kept waiting. */
+function runLater(task: () => Promise<unknown>) {
+  const run = () => task().catch((err: unknown) => console.error("[bookings] background update failed", err));
+  try {
+    after(run);
+  } catch {
+    // Not inside a request (for example a scheduled job): just do it now.
+    void run();
+  }
+}
+
+/** Sends the latest details of these bookings to Notion without changing their status. */
+export async function refreshNotionBookings(ids: string[]): Promise<{ count: number; problems: string[] }> {
+  if (ids.length === 0) return { count: 0, problems: [] };
+  const settings = await getSettings();
+  if (!settings.notion_enabled || !settings.notion_database_id || !isNotionConfigured()) return { count: 0, problems: [] };
+  const admin = createAdminClient();
+  const { data } = await admin.from("bookings").select("id").in("id", ids).eq("status", "confirmed");
+  const confirmed = ((data ?? []) as unknown as Array<{ id: string }>).map((r) => r.id);
+  if (confirmed.length === 0) return { count: 0, problems: [] };
+  const contexts = await loadContexts(confirmed, settings);
+  const { problems } = await syncNotion("refresh", contexts, settings, await getBaseUrl());
+  return { count: contexts.length, problems };
+}
+
+/**
+ * Plans the given days again (or every upcoming day) and updates Notion for each clean
+ * whose plan changed. Used after changes to teams, houses or working hours.
+ */
+export async function replanCleaning(days: string[] | "upcoming", opts: { background?: boolean } = {}): Promise<{ changed: number; problems: string[] }> {
+  try {
+    const list = days === "upcoming" ? await upcomingCleaningDays() : days;
+    const { changed } = await replanDays(list);
+    if (changed.length) {
+      if (opts.background) runLater(() => refreshNotionBookings(changed));
+      else {
+        const r = await refreshNotionBookings(changed);
+        return { changed: changed.length, problems: r.problems };
+      }
+    }
+    return { changed: changed.length, problems: [] };
+  } catch (err) {
+    console.error("[cleaning] re-planning failed", err);
+    return { changed: 0, problems: [errorMessage(err)] };
+  }
 }
 
 /** Re-send just the integrations for one booking (used by the Retry buttons). */
@@ -427,6 +519,11 @@ export async function retryBookingSync(
  * (address, phone and so on). Runs when an admin clicks "Reconnect and check columns".
  */
 export async function refreshUpcomingNotionBookings(): Promise<{ count: number; problems: string[] }> {
+  try {
+    await replanDays(await upcomingCleaningDays());
+  } catch (err) {
+    console.error("[cleaning] re-planning failed", err);
+  }
   const settings = await getSettings();
   if (!settings.notion_enabled || !settings.notion_database_id || !isNotionConfigured()) return { count: 0, problems: [] };
   const admin = createAdminClient();

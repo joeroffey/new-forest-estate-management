@@ -31,6 +31,8 @@ jobs:
       GREENAPI_INSTANCE_ID: "1101000001"
       GREENAPI_API_TOKEN: test-token
       GREENAPI_API_URL: http://localhost:4010/green
+      POSTCODES_API_URL: http://localhost:4010/postcodes
+      CRON_SECRET: test-cron-secret
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +63,9 @@ jobs:
       - name: Database security tests
         continue-on-error: true
         run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_test.sql 2>&1 | tee ci-db-tests.log
+
+      - name: Cleaning planner tests
+        run: node --experimental-strip-types --no-warnings --test tests/unit/planner.test.ts 2>&1 | tee ci-unit.log
 
       - name: Type check (all errors at once)
         run: |

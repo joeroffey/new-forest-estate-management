@@ -105,6 +105,16 @@ If a column is deleted in Notion, the site adds it back the next time it sends a
 
 If Notion or WhatsApp fails, the booking is still saved. The dashboard's **Needs attention** box shows it, with a **Resend** button.
 
+**Cleaning plan** (**Cleaning plan** in the admin menu): each day's changeovers are shared between the cleaning teams working that day and put in order. Every house is ready before the next guests arrive, nobody works past the end of the day if it can be avoided, and the driving is kept as short as possible. It re-plans itself whenever a booking, a property or a team changes.
+
+- **Set up**: **Settings → Cleaning teams**. Add each team with the postcode they set off from. Untick "Usually works" for a team that only helps on busy days. Set when teams set off and when they should finish by.
+- **How long each house takes**: on each property's page (admins only). Until you set it, it's estimated from the bedrooms and bathrooms.
+- **On the day's page** you can tick which teams are working, move a clean to a particular team (the rest is re-planned around it), open each team's route in Google Maps, and send the plan to the WhatsApp group.
+- **Each morning (around 7am)** the day's plan is posted to the cleaners' WhatsApp group automatically, once per day. Turn this off in Settings. For extra protection, add a `CRON_SECRET` environment variable in Vercel (any long random text); Vercel then signs its morning call with it.
+- **In Notion**, each booking gets **Clean start** (the planned time), **Team**, **Run order** ("2 of 4"), **Drive** and a **Day route** link. The Cleaning calendar uses Clean start, so the day reads in order.
+
+Drive times are estimated from the distance between postcodes (looked up free from postcodes.io), allowing for winding roads and parking.
+
 **Invoices**: **Invoices → New invoice**, choose the customer and the month. Press **Copy last invoice** to reuse last month's lines, or add that month's changeovers from the list on the right, then fill in the prices. **Save and send** emails a PDF to the customer (and any contacts marked "copy on invoices"). Mark invoices as paid when the money arrives; overdue invoices are flagged automatically. The dashboard shows which customers still need an invoice for last month.
 
 ---

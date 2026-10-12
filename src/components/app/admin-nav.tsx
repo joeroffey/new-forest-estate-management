@@ -4,12 +4,13 @@ import clsx from "clsx";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CalendarDays, CalendarRange, LayoutDashboard, Loader2, Menu, Receipt, Settings, Users, X, type LucideIcon } from "lucide-react";
+import { CalendarDays, CalendarRange, LayoutDashboard, Loader2, Menu, Receipt, Route, Settings, Users, X, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 
 export const ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/admin/cleaning", label: "Cleaning plan", icon: Route },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarRange },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/invoices", label: "Invoices", icon: Receipt },

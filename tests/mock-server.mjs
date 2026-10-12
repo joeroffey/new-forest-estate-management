@@ -71,6 +71,28 @@ const server = http.createServer((req, res) => {
       return send(res, 200, { id: m[1], object: "page", archived: Boolean(body?.archived) });
     }
 
+    // ---- postcodes.io (map locations): stable made-up points around the New Forest
+    const spot = (key) => {
+      let h = 2166136261;
+      for (const ch of String(key).toUpperCase()) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+      return { latitude: 50.72 + (h % 1000) / 1000 * 0.12, longitude: -1.78 + ((h >>> 10) % 1000) / 1000 * 0.25 };
+    };
+    if (path === "/postcodes/postcodes" && req.method === "POST") {
+      const list = Array.isArray(body?.postcodes) ? body.postcodes : [];
+      return send(res, 200, {
+        status: 200,
+        result: list.map((q) => ({ query: q, result: /^ZZ/i.test(q) ? null : { postcode: q, ...spot(q) } })),
+      });
+    }
+    if ((m = path.match(/^\/postcodes\/outcodes\/([^/]+)$/))) {
+      if (/^ZZ/i.test(m[1])) return send(res, 404, { status: 404, error: "Outcode not found" });
+      return send(res, 200, { status: 200, result: { outcode: m[1], ...spot(m[1]) } });
+    }
+    if (path === "/postcodes/places" && req.method === "GET") {
+      const q = url.searchParams.get("q") ?? "";
+      return send(res, 200, { status: 200, result: q ? [{ name_1: q, county_unitary: "Hampshire", ...spot(q) }] : [] });
+    }
+
     // ---- Green-API
     if ((m = path.match(/^\/green\/waInstance[^/]+\/([A-Za-z]+)\/[^/]+$/))) {
       const method = m[1];

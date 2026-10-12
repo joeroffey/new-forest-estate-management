@@ -89,6 +89,13 @@ const REQUIRED_PROPERTIES: Record<string, { type: string; config: Record<string,
   "Lead guest": { type: "rich_text", config: { rich_text: {} } },
   "Customer phone": { type: "phone_number", config: { phone_number: {} } },
   "Customer email": { type: "email", config: { email: {} } },
+  // The day's cleaning plan: when this clean is planned, by which team, in what order.
+  "Clean start": { type: "date", config: { date: {} } },
+  Team: { type: "select", config: { select: { options: [] } } },
+  "Run order": { type: "rich_text", config: { rich_text: {} } },
+  Drive: { type: "rich_text", config: { rich_text: {} } },
+  "Day route": { type: "url", config: { url: {} } },
+  Warning: { type: "rich_text", config: { rich_text: {} } },
 };
 
 /**
@@ -164,6 +171,14 @@ export interface NotionBookingInput {
   leadGuest: string;
   customerPhone: string | null;
   customerEmail: string | null;
+  /** Planned clean, as local UK times "YYYY-MM-DDTHH:MM". */
+  cleanStart: string;
+  cleanEnd: string | null;
+  team: string | null;
+  runOrder: string;
+  drive: string;
+  dayRoute: string | null;
+  warning: string;
 }
 
 function bookingProperties(input: NotionBookingInput, titleProp: string) {
@@ -193,6 +208,15 @@ function bookingProperties(input: NotionBookingInput, titleProp: string) {
     "Lead guest": text(input.leadGuest),
     "Customer phone": { phone_number: input.customerPhone?.trim() || null },
     "Customer email": { email: input.customerEmail?.trim() || null },
+    "Clean start": {
+      date: { start: `${input.cleanStart}:00`, end: input.cleanEnd ? `${input.cleanEnd}:00` : null, time_zone: "Europe/London" },
+    },
+    // Notion option names can't contain commas.
+    Team: { select: input.team ? { name: input.team.replace(/,/g, " ").slice(0, 100) } : null },
+    "Run order": text(input.runOrder),
+    Drive: text(input.drive),
+    "Day route": { url: input.dayRoute || null },
+    Warning: text(input.warning),
   };
 }
 

@@ -103,6 +103,15 @@ export function plural(count: number, singular: string, pluralForm?: string): st
   return `${count} ${count === 1 ? singular : pluralForm ?? `${singular}s`}`;
 }
 
+/** 165 → "2 h 45 min", 45 → "45 min", 120 → "2 h" */
+export function formatDuration(minutes: number | null | undefined): string {
+  const m = Math.max(0, Math.round(minutes ?? 0));
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  if (h === 0) return `${rest} min`;
+  return rest ? `${h} h ${rest} min` : `${h} h`;
+}
+
 /** "3 adults, 1 child, 1 infant" */
 export function formatGuests(b: { adults: number; children: number; infants: number }): string {
   const parts = [plural(b.adults, "adult")];
