@@ -3,11 +3,13 @@ import { getSettings } from "@/lib/settings";
 import { getBaseUrl } from "@/lib/env";
 import { logActivity } from "@/lib/activity";
 import { errorMessage } from "@/lib/errors";
-import { addDaysISO, formatDateRange, hoursUntil, formatGuests } from "@/lib/format";
+import { addDaysISO, formatDateRange, formatDayMonth, formatTimeFriendly, hoursUntil, formatGuests, plural, todayISO } from "@/lib/format";
 import {
   archiveNotionBooking,
   createNotionBooking,
+  isNotionColumnError,
   isNotionConfigured,
+  prepareNotionDatabase,
   updateNotionBooking,
   type NotionBookingInput,
 } from "@/lib/integrations/notion";
@@ -17,6 +19,7 @@ import { button, detailsTable, heading, paragraph, renderEmail, type EmailBlock 
 import {
   buildWhatsAppMessage,
   isSameDayTurnaround,
+  propertyAddress,
   setupText,
   stayDetailRows,
   type BookingContext,
@@ -86,8 +89,28 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
   });
 }
 
-function notionInput(ctx: BookingContext, kind: SyncKind, baseUrl: string): NotionBookingInput {
+/** "Same day: from 4pm", "Sat 25 Oct", or "No booking yet" — when the cleaners must be finished by. */
+function nextArrivalText(ctx: BookingContext): string {
+  if (isSameDayTurnaround(ctx)) {
+    return `Same day: next guests arrive ${formatTimeFriendly(ctx.next?.arrival_time ?? ctx.property.default_arrival_time)}`;
+  }
+  return ctx.next ? formatDayMonth(ctx.next.arrival_date) : "No booking yet";
+}
+
+/** "3 bedrooms, 2 bathrooms, sleeps 6" */
+function roomsText(p: BookingContext["property"]): string {
+  return [
+    p.bedrooms ? plural(p.bedrooms, "bedroom") : null,
+    p.bathrooms ? plural(p.bathrooms, "bathroom") : null,
+    p.sleeps ? `sleeps ${p.sleeps}` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function notionInput(ctx: BookingContext, kind: SyncKind | "refresh", baseUrl: string): NotionBookingInput {
   const b = ctx.booking;
+  const address = propertyAddress(ctx.property);
   return {
     title: `${ctx.property.name}: ${formatDateRange(b.arrival_date, b.departure_date)}`,
     arrivalDate: b.arrival_date,
@@ -100,43 +123,69 @@ function notionInput(ctx: BookingContext, kind: SyncKind, baseUrl: string): Noti
     setup: setupText(b),
     extras: b.extras.map(extraLabel).join(", "),
     notes: b.notes ?? "",
-    status: kind === "updated" ? "Updated" : "Confirmed",
+    status: kind === "refresh" ? undefined : kind === "updated" ? "Updated" : "Confirmed",
     reference: b.reference,
     sameDay: isSameDayTurnaround(ctx),
     portalUrl: `${baseUrl}/admin/bookings/${b.id}`,
+    address,
+    directionsUrl: address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : null,
+    access: ctx.property.access_notes ?? "",
+    cleanerNotes: ctx.property.cleaner_notes ?? "",
+    rooms: roomsText(ctx.property),
+    nextArrival: nextArrivalText(ctx),
+    leadGuest: b.guest_name ?? "",
+    customerPhone: ctx.customer.phone || ctx.customer.phone_secondary || null,
+    customerEmail: ctx.customer.email || null,
   };
 }
 
-async function syncNotion(kind: SyncKind, contexts: BookingContext[], settings: Settings, baseUrl: string): Promise<{
+async function syncNotion(kind: SyncKind | "refresh", contexts: BookingContext[], settings: Settings, baseUrl: string): Promise<{
   status: ChannelStatus;
   problems: string[];
 }> {
   if (!settings.notion_enabled || !settings.notion_database_id || !isNotionConfigured()) {
     return { status: "off", problems: [] };
   }
+  const databaseId = settings.notion_database_id;
   const admin = createAdminClient();
   const problems: string[] = [];
   const titleProp = settings.notion_title_prop || "Name";
+  let repaired = false;
+
+  /** If a column is missing in Notion (deleted, or new since connecting), add it back once and try again. */
+  async function withColumnRepair<T>(run: () => Promise<T>): Promise<T> {
+    try {
+      return await run();
+    } catch (err) {
+      if (repaired || !isNotionColumnError(err)) throw err;
+      repaired = true;
+      await prepareNotionDatabase(databaseId);
+      return run();
+    }
+  }
 
   for (const ctx of contexts) {
     const b = ctx.booking;
     try {
       let pageId = b.notion_page_id;
+      // A refresh has no status to set, so a brand-new page is created as Confirmed.
+      const createInput = () => notionInput(ctx, kind === "refresh" ? "created" : kind, baseUrl);
       if (kind === "cancelled") {
         if (pageId) await archiveNotionBooking(pageId);
       } else if (pageId) {
+        const existingPage = pageId;
         try {
-          await updateNotionBooking(pageId, titleProp, notionInput(ctx, kind, baseUrl));
+          await withColumnRepair(() => updateNotionBooking(existingPage, titleProp, notionInput(ctx, kind, baseUrl)));
         } catch (err) {
           // The page may have been deleted in Notion: create a fresh one.
           if (errorMessage(err).includes("can't find")) {
-            pageId = await createNotionBooking(settings.notion_database_id, titleProp, notionInput(ctx, kind, baseUrl));
+            pageId = await withColumnRepair(() => createNotionBooking(databaseId, titleProp, createInput()));
           } else {
             throw err;
           }
         }
       } else {
-        pageId = await createNotionBooking(settings.notion_database_id, titleProp, notionInput(ctx, kind, baseUrl));
+        pageId = await withColumnRepair(() => createNotionBooking(databaseId, titleProp, createInput()));
       }
       await admin
         .from("bookings")
@@ -371,4 +420,27 @@ export async function retryBookingSync(
   const { data } = await admin.from("bookings").select("status").eq("id", bookingId).maybeSingle();
   const kind: SyncKind = (data as unknown as { status?: string } | null)?.status === "cancelled" ? "cancelled" : "created";
   return syncBookings(kind, [bookingId], actor, { skipEmails: true, channels: [channel] });
+}
+
+/**
+ * Re-sends every upcoming booking to Notion so existing entries pick up new columns
+ * (address, phone and so on). Runs when an admin clicks "Reconnect and check columns".
+ */
+export async function refreshUpcomingNotionBookings(): Promise<{ count: number; problems: string[] }> {
+  const settings = await getSettings();
+  if (!settings.notion_enabled || !settings.notion_database_id || !isNotionConfigured()) return { count: 0, problems: [] };
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("bookings")
+    .select("id")
+    .eq("status", "confirmed")
+    .gte("departure_date", todayISO())
+    .order("departure_date", { ascending: true })
+    .limit(150);
+  if (error) return { count: 0, problems: [`Could not load bookings: ${error.message}`] };
+  const ids = (data ?? []).map((r) => (r as { id: string }).id);
+  if (ids.length === 0) return { count: 0, problems: [] };
+  const contexts = await loadContexts(ids, settings);
+  const { problems } = await syncNotion("refresh", contexts, settings, await getBaseUrl());
+  return { count: contexts.length, problems };
 }

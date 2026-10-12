@@ -79,7 +79,27 @@ const REQUIRED_PROPERTIES: Record<string, { type: string; config: Record<string,
   Reference: { type: "rich_text", config: { rich_text: {} } },
   "Same-day turnaround": { type: "checkbox", config: { checkbox: {} } },
   "Portal link": { type: "url", config: { url: {} } },
+  // For the cleaners: where they're going, how to get in and who to call.
+  Address: { type: "rich_text", config: { rich_text: {} } },
+  Directions: { type: "url", config: { url: {} } },
+  Access: { type: "rich_text", config: { rich_text: {} } },
+  "Cleaner notes": { type: "rich_text", config: { rich_text: {} } },
+  Rooms: { type: "rich_text", config: { rich_text: {} } },
+  "Next arrival": { type: "rich_text", config: { rich_text: {} } },
+  "Lead guest": { type: "rich_text", config: { rich_text: {} } },
+  "Customer phone": { type: "phone_number", config: { phone_number: {} } },
+  "Customer email": { type: "email", config: { email: {} } },
 };
+
+/**
+ * True when Notion refused a booking because a column is missing or has changed type
+ * (someone deleted or renamed it in Notion, or the site added a new column since the
+ * database was connected). Running prepareNotionDatabase again fixes it.
+ */
+export function isNotionColumnError(err: unknown): boolean {
+  const message = errorMessage(err);
+  return /is not a property that exists|is expected to be|property .* does not exist/i.test(message);
+}
 
 interface NotionDatabase {
   id: string;
@@ -130,10 +150,20 @@ export interface NotionBookingInput {
   setup: string;
   extras: string;
   notes: string;
-  status: "Confirmed" | "Updated";
+  /** Left out when refreshing existing entries, so "Updated" isn't reset. */
+  status?: "Confirmed" | "Updated";
   reference: string;
   sameDay: boolean;
   portalUrl: string;
+  address: string;
+  directionsUrl: string | null;
+  access: string;
+  cleanerNotes: string;
+  rooms: string;
+  nextArrival: string;
+  leadGuest: string;
+  customerPhone: string | null;
+  customerEmail: string | null;
 }
 
 function bookingProperties(input: NotionBookingInput, titleProp: string) {
@@ -150,10 +180,19 @@ function bookingProperties(input: NotionBookingInput, titleProp: string) {
     "Bed setup": text(input.setup),
     Extras: text(input.extras),
     Notes: text(input.notes),
-    Status: { select: { name: input.status } },
+    ...(input.status ? { Status: { select: { name: input.status } } } : {}),
     Reference: text(input.reference),
     "Same-day turnaround": { checkbox: input.sameDay },
     "Portal link": { url: input.portalUrl },
+    Address: text(input.address),
+    Directions: { url: input.directionsUrl || null },
+    Access: text(input.access),
+    "Cleaner notes": text(input.cleanerNotes),
+    Rooms: text(input.rooms),
+    "Next arrival": text(input.nextArrival),
+    "Lead guest": text(input.leadGuest),
+    "Customer phone": { phone_number: input.customerPhone?.trim() || null },
+    "Customer email": { email: input.customerEmail?.trim() || null },
   };
 }
 

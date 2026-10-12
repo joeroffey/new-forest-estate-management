@@ -12,7 +12,7 @@ const ADMIN_EMAIL = process.env.ADMIN_SETUP_EMAIL ?? "admin@example.com";
 const SHOTS = "ci-artifacts/screens";
 fs.mkdirSync(SHOTS, { recursive: true });
 
-type MockRequest = { method: string; path: string; body: Record<string, unknown> | null };
+type MockRequest = { method: string; path: string; body: Record<string, unknown> | null; status: number };
 
 async function mockRequests(): Promise<MockRequest[]> {
   const res = await fetch(`${MOCK}/__requests`);
@@ -256,7 +256,9 @@ test.describe.serial("New Forest Estate Management", () => {
     await toast(page, /Connected to “Bookings”/);
     const patch = await waitFor(async () => (await mockRequests()).find((r) => r.method === "PATCH" && r.path.startsWith("/notion/databases/")), "Notion database setup");
     expect(patch.path).toBe("/notion/databases/01234567-89ab-cdef-0123-456789abcdef");
-    expect(Object.keys((patch.body as { properties: object }).properties)).toEqual(expect.arrayContaining(["Stay", "Changeover", "Status", "Same-day turnaround"]));
+    expect(Object.keys((patch.body as { properties: object }).properties)).toEqual(
+      expect.arrayContaining(["Stay", "Changeover", "Status", "Same-day turnaround", "Address", "Directions", "Access", "Customer phone", "Next arrival"]),
+    );
 
     await page.locator("#notifications").getByRole("button", { name: "Send a test email" }).click();
     await toast(page, /Test email sent to team@example.com/);
@@ -344,6 +346,9 @@ test.describe.serial("New Forest Estate Management", () => {
     await expect(page.getByText(/New guests arrive on .*, the day these guests\s+leave/).first()).toBeVisible();
     await shot(page, "21-portal-booking-form");
 
+    // Someone deletes a column in Notion: the site should put it back and still save the bookings.
+    await fetch(`${MOCK}/__notion/drop-column?name=${encodeURIComponent("Customer phone")}`, { method: "POST" });
+
     await page.getByRole("button", { name: "Send 2 bookings" }).click();
     await expect(page).toHaveURL(/\/portal\/bookings\?sent=2/);
     await expect(page.getByText("2 bookings sent.")).toBeVisible();
@@ -354,11 +359,28 @@ test.describe.serial("New Forest Estate Management", () => {
     for (const part of ["9 Island Point", "Same-day turnaround", "3 adults", "1 dog", "Bedroom 2: split the double", "put back to standard", "Travel cot", "Birthday weekend", "Key safe by the side gate"]) {
       expect(msg, `WhatsApp message should mention ${part}`).toContain(part);
     }
-    const pages = (await mockRequests()).filter((r) => r.method === "POST" && r.path === "/notion/pages");
+    const requests = await mockRequests();
+    const pages = requests.filter((r) => r.method === "POST" && r.path === "/notion/pages" && r.status === 200);
     expect(pages.length).toBe(2);
-    const props = (pages.map((p) => p.body!.properties) as Array<Record<string, { date?: { start: string; end?: string } }>>).find((p) => p.Stay?.date?.start === d10);
+    // The missing column was added back before retrying.
+    const repair = requests.filter((r) => r.method === "PATCH" && r.path.startsWith("/notion/databases/")).at(-1);
+    expect(Object.keys((repair?.body as { properties: object }).properties)).toEqual(["Customer phone"]);
+
+    type NotionProps = Record<
+      string,
+      { date?: { start: string; end?: string }; rich_text?: Array<{ text: { content: string } }>; url?: string | null; phone_number?: string | null }
+    >;
+    const props = (pages.map((p) => p.body!.properties) as NotionProps[]).find((p) => p.Stay?.date?.start === d10);
+    const textOf = (name: string) => props?.[name]?.rich_text?.map((t) => t.text.content).join("") ?? "";
     expect(props?.Stay?.date?.end).toBe(d13);
     expect(props?.Changeover?.date?.start).toBe(`${d13}T10:00:00`);
+    // What the cleaners see when they open the entry
+    expect(textOf("Address")).toBe("Lymington");
+    expect(props?.Directions?.url).toBe("https://www.google.com/maps/search/?api=1&query=Lymington");
+    expect(props?.["Customer phone"]?.phone_number).toBe("07700 900123");
+    expect(textOf("Access")).toBe("Key safe by the side gate, code 1234");
+    expect(textOf("Extras")).toBe("Travel cot");
+    expect(textOf("Next arrival")).toMatch(/^Same day: next guests arrive \d/);
 
     const confirmation = await waitForEmail("alice@example.com", /2 bookings received: 9 Island Point/);
     expect(confirmation.html).toContain("Bedroom 2: split the double into two singles");

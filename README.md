@@ -82,6 +82,10 @@ Keep the spare phone charged and connected now and then: WhatsApp unlinks device
 
 Cancelled bookings are moved to Notion's trash, so they disappear from the calendar.
 
+Each entry carries what the cleaners need: property address with a Google Maps link, access notes, cleaner notes, rooms, guests, dogs, bed setup, extras, notes, when the next guests arrive, and the owner's phone and email. Give cleaners **Can view** access to the parent page (so they also see the Bookings database it contains).
+
+If a column is deleted in Notion, the site adds it back the next time it sends a booking. When new columns are added in a site update, press **Reconnect and check columns** in **Settings → Notion**. That also refreshes every upcoming booking.
+
 ### 7. Add your first customer
 
 **Customers → Add customer**. Leave "Email them an invitation" ticked and they'll get a link to set up their account. If someone loses the email, they can go to `/register` and enter their address to get a new link, or you can press **Resend invitation** on their page.

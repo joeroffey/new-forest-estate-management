@@ -13,7 +13,7 @@ import { paragraph, renderEmail } from "@/lib/email/templates";
 import { getWhatsAppStatus, isWhatsAppConfigured, listWhatsAppGroups, sendWhatsAppMessage, WHATSAPP_PROVIDERS, type WhatsAppGroup } from "@/lib/integrations/whatsapp";
 import { isNotionConfigured, parseNotionId, prepareNotionDatabase } from "@/lib/integrations/notion";
 import { sendAdminInvite } from "@/lib/invitations";
-import { retryBookingSync } from "@/lib/bookings/sync";
+import { refreshUpcomingNotionBookings, retryBookingSync } from "@/lib/bookings/sync";
 import type { ActionState, Settings, WhatsAppProvider } from "@/lib/types";
 
 const opt = (max: number) =>
@@ -235,10 +235,15 @@ export async function connectNotion(_prev: ActionState, formData: FormData): Pro
     const { title, titleProp, added } = await prepareNotionDatabase(id);
     const r = await update({ notion_database_id: id, notion_title_prop: titleProp, notion_enabled: true });
     if (r.error) return { error: r.error };
-    return {
-      ok: true,
-      message: added.length ? `Connected to “${title}” and added ${added.length} columns. Bookings will now appear in Notion.` : `Connected to “${title}”. Bookings will now appear in Notion.`,
-    };
+    // Bring every upcoming booking up to date, so entries made before a column existed get filled in.
+    const refresh = await refreshUpcomingNotionBookings().catch((err: unknown) => ({ count: 0, problems: [errorMessage(err)] }));
+    const parts = [added.length ? `Connected to “${title}” and added ${added.length} columns.` : `Connected to “${title}”.`];
+    if (refresh.count) parts.push(`Updated ${refresh.count} upcoming ${refresh.count === 1 ? "booking" : "bookings"} in Notion.`);
+    else parts.push("Bookings will now appear in Notion.");
+    if (refresh.problems.length) {
+      return { error: `${parts.join(" ")} But some bookings couldn't be updated: ${refresh.problems.slice(0, 3).join("; ")}` };
+    }
+    return { ok: true, message: parts.join(" ") };
   } catch (err) {
     return { fieldErrors: { notion_database: errorMessage(err) } };
   }

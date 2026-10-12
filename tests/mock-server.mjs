@@ -33,7 +33,14 @@ const server = http.createServer((req, res) => {
       }
       return send(res, 200, requests);
     }
-    requests.push({ method: req.method, path, query: url.search, body, at: Date.now() });
+    // Test hook: delete a Notion column, as if someone removed it in Notion.
+    if (path === "/__notion/drop-column" && req.method === "POST") {
+      delete notionProps[url.searchParams.get("name") ?? ""];
+      return send(res, 200, { ok: true });
+    }
+    const entry = { method: req.method, path, query: url.search, body, at: Date.now(), status: 0 };
+    requests.push(entry);
+    res.on("finish", () => (entry.status = res.statusCode));
 
     // ---- Resend
     if (path === "/resend/emails" && req.method === "POST") return send(res, 200, { id: randomUUID() });
@@ -48,6 +55,11 @@ const server = http.createServer((req, res) => {
         }
         return send(res, 200, { id: m[1], properties: notionProps });
       }
+    }
+    // Like Notion, refuse pages that use a column the database doesn't have.
+    const unknownProp = Object.keys(body?.properties ?? {}).find((name) => !notionProps[name]);
+    if (path.startsWith("/notion/pages") && unknownProp) {
+      return send(res, 400, { object: "error", code: "validation_error", message: `${unknownProp} is not a property that exists.` });
     }
     if (path === "/notion/pages" && req.method === "POST") {
       const id = randomUUID();
