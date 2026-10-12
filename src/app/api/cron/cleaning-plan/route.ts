@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * Runs every morning (see vercel.json): plans today's cleans again with the latest
- * bookings, then posts the plan to the cleaners' WhatsApp group. It only ever sends
+ * Runs every morning (see vercel.json): plans the upcoming cleans again with the latest
+ * bookings, then posts today's plan to the cleaners' WhatsApp group. It only ever sends
  * once per day, however many times it's called. Vercel signs its call with CRON_SECRET,
  * which must be set: without it, nobody can run this.
  */
@@ -22,8 +22,10 @@ export async function GET(request: Request) {
   if (request.headers.get("authorization") !== `Bearer ${secret}`) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
 
   const day = todayISO();
-  // Notion is brought up to date after the response, so it never holds up the morning message.
-  await replanCleaning([day], { background: true });
+  // Check every upcoming day each morning: plans bookings made before planning existed and
+  // anything a failed update missed. Notion catches up after the response, so it never
+  // holds up the morning message.
+  await replanCleaning("upcoming", { background: true });
 
   const s = await getSettings();
   if (!s.cleaning_plan_whatsapp) return NextResponse.json({ sent: false, reason: "The morning message is turned off in Settings" });
