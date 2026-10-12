@@ -16,13 +16,12 @@ import {
 } from "@/lib/integrations/notion";
 import { isWhatsAppConfigured, sendWhatsAppMessage } from "@/lib/integrations/whatsapp";
 import { sendEmail } from "@/lib/email/send";
-import { button, detailsTable, heading, paragraph, renderEmail, type EmailBlock } from "@/lib/email/templates";
+import { bookingCustomerEmail, bookingTeamEmail } from "@/lib/email/booking-emails";
 import {
   buildWhatsAppMessage,
   isSameDayTurnaround,
   propertyAddress,
   setupText,
-  stayDetailRows,
   type BookingContext,
   type SyncKind,
 } from "@/lib/bookings/messages";
@@ -293,9 +292,7 @@ async function customerRecipients(customer: Customer): Promise<{ to: string[]; c
   return { to: [customer.email], cc };
 }
 
-// The words and layout of these emails live in src/lib/email/booking-emails.ts. (Imported here, beside
-// the only code that uses it, so this file's import list stays as it was.)
-import { bookingCustomerEmail, bookingTeamEmail } from "@/lib/email/booking-emails";
+// The words and layout of these emails live in src/lib/email/booking-emails.ts.
 
 async function sendBookingEmails(
   kind: SyncKind,

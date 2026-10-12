@@ -11,3 +11,6 @@ ci-artifacts
 test-results
 playwright-report
 .DS_Store
+
+# Claude Code worktrees
+.claude/worktrees/
