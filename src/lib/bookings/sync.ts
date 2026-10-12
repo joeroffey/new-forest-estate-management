@@ -22,6 +22,7 @@ import {
   type BookingContext,
   type SyncKind,
 } from "@/lib/bookings/messages";
+import { extraLabel } from "@/lib/bookings/schema";
 import type { Booking, Customer, CustomerContact, Property, Settings } from "@/lib/types";
 
 export type ChannelStatus = "sent" | "failed" | "off";
@@ -97,6 +98,7 @@ function notionInput(ctx: BookingContext, kind: SyncKind, baseUrl: string): Noti
     guests: `${formatGuests(b)}`,
     dogs: b.dogs,
     setup: setupText(b),
+    extras: b.extras.map(extraLabel).join(", "),
     notes: b.notes ?? "",
     status: kind === "updated" ? "Updated" : "Confirmed",
     reference: b.reference,

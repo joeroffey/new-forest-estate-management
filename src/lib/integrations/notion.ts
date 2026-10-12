@@ -63,6 +63,7 @@ const REQUIRED_PROPERTIES: Record<string, { type: string; config: Record<string,
   Guests: { type: "rich_text", config: { rich_text: {} } },
   Dogs: { type: "number", config: { number: { format: "number" } } },
   "Bed setup": { type: "rich_text", config: { rich_text: {} } },
+  Extras: { type: "rich_text", config: { rich_text: {} } },
   Notes: { type: "rich_text", config: { rich_text: {} } },
   Status: {
     type: "select",
@@ -127,6 +128,7 @@ export interface NotionBookingInput {
   guests: string;
   dogs: number;
   setup: string;
+  extras: string;
   notes: string;
   status: "Confirmed" | "Updated";
   reference: string;
@@ -146,6 +148,7 @@ function bookingProperties(input: NotionBookingInput, titleProp: string) {
     Guests: text(input.guests),
     Dogs: { number: input.dogs },
     "Bed setup": text(input.setup),
+    Extras: text(input.extras),
     Notes: text(input.notes),
     Status: { select: { name: input.status } },
     Reference: text(input.reference),
