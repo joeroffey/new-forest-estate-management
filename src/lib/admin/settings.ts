@@ -9,7 +9,7 @@ import { getBaseUrl } from "@/lib/env";
 import { logActivity } from "@/lib/activity";
 import { errorMessage, friendlyDbError } from "@/lib/errors";
 import { sendEmail } from "@/lib/email/send";
-import { paragraph, renderEmail } from "@/lib/email/templates";
+import { testEmail } from "@/lib/email/test-email";
 import { getWhatsAppStatus, isWhatsAppConfigured, listWhatsAppGroups, sendWhatsAppMessage, WHATSAPP_PROVIDERS, type WhatsAppGroup } from "@/lib/integrations/whatsapp";
 import { isNotionConfigured, parseNotionId, prepareNotionDatabase } from "@/lib/integrations/notion";
 import { sendAdminInvite } from "@/lib/invitations";
@@ -150,13 +150,7 @@ export async function sendTestEmail(): Promise<ActionState> {
   const settings = await getSettings();
   const to = settings.notify_emails.length ? settings.notify_emails : [viewer.user.email ?? ""];
   const base = await getBaseUrl();
-  const email = renderEmail({
-    title: "Test email",
-    preheader: "Your email set-up is working.",
-    baseUrl: base,
-    blocks: [paragraph("If you can read this, emails from the website are working. Booking and invoice emails will look like this.")],
-  });
-  const r = await sendEmail({ to, subject: "Test email from your website", ...email });
+  const r = await sendEmail({ to, ...testEmail({ baseUrl: base, to, sentAt: new Date().toISOString() }) });
   return r.ok ? { ok: true, message: `Test email sent to ${to.join(", ")}` } : { error: r.error };
 }
 

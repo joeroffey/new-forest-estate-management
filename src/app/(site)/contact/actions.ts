@@ -1,9 +1,10 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { getSettings } from "@/lib/settings";
 import { sendEmail } from "@/lib/email/send";
-import { detailsTable, paragraph, renderEmail } from "@/lib/email/templates";
+import { enquiryAcknowledgementEmail, enquiryTeamEmail } from "@/lib/email/enquiry-emails";
 import { getBaseUrl, isSupabaseConfigured } from "@/lib/env";
 import { logActivity } from "@/lib/activity";
 import { site } from "@/lib/site";
@@ -35,9 +36,11 @@ export async function sendEnquiry(_prev: ActionState, formData: FormData): Promi
   const d = parsed.data;
 
   const recipients: string[] = [];
+  let businessEmail: string | null = null;
   if (isSupabaseConfigured()) {
     try {
       const settings = await getSettings();
+      businessEmail = settings.email;
       recipients.push(...settings.notify_emails);
       if (recipients.length === 0 && settings.email) recipients.push(settings.email);
     } catch (err) {
@@ -47,22 +50,7 @@ export async function sendEnquiry(_prev: ActionState, formData: FormData): Promi
   if (recipients.length === 0 && site.email) recipients.push(site.email);
 
   const baseUrl = await getBaseUrl();
-  const email = renderEmail({
-    title: `New enquiry from ${d.name}`,
-    preheader: d.message.slice(0, 90),
-    baseUrl,
-    blocks: [
-      paragraph("Someone has sent a message through the website contact form. Reply to this email to answer them."),
-      detailsTable([
-        ["Name", d.name],
-        ["Email", d.email],
-        ["Phone", d.phone],
-        ["Property location", d.location],
-        ["Interested in", d.service],
-        ["Message", d.message],
-      ]),
-    ],
-  });
+  const email = enquiryTeamEmail({ baseUrl, enquiry: d });
 
   if (isSupabaseConfigured()) {
     await logActivity({
@@ -79,7 +67,6 @@ export async function sendEnquiry(_prev: ActionState, formData: FormData): Promi
 
   const result = await sendEmail({
     to: recipients,
-    subject: `Website enquiry: ${d.name}${d.service ? ` (${d.service})` : ""}`,
     replyTo: d.email,
     ...email,
   });
@@ -87,5 +74,26 @@ export async function sendEnquiry(_prev: ActionState, formData: FormData): Promi
     console.error("[contact] email failed", result.error);
     return { error: `Sorry, we couldn't send that just now. Please call us on ${site.phoneDisplay}.` };
   }
+
+  // A short "we've got your message" to the sender (the form has already checked their address).
+  // It goes after the response and never holds up or fails the enquiry. Their replies reach the team.
+  sendLater(async () => {
+    const ack = await sendEmail({
+      to: d.email,
+      replyTo: businessEmail || site.email || undefined,
+      ...enquiryAcknowledgementEmail({ baseUrl, enquiry: d }),
+    });
+    if (!ack.ok) console.warn("[contact] acknowledgement not sent", ack.error);
+  });
   return { ok: true, message: "Thanks, your message has been sent. We'll be in touch soon." };
+}
+
+/** Runs work after the response has been sent when possible, so the visitor isn't kept waiting. */
+function sendLater(task: () => Promise<unknown>) {
+  const run = () => task().catch((err: unknown) => console.error("[contact] acknowledgement failed", err));
+  try {
+    after(run);
+  } catch {
+    void run();
+  }
 }
