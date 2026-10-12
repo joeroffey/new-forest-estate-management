@@ -4,11 +4,13 @@
  * Every clean has a window: it can start once the guests have checked out, and on a
  * same-day turnaround it must be finished before the next guests arrive. The planner
  * splits the day's cleans between the teams working that day and orders each team's run
- * so that, in order of importance:
- *   1. no clean finishes after the next guests arrive,
- *   2. nobody works past the end of the working day,
- *   3. there is as little driving as possible,
- *   4. the day finishes as early as reasonable (so work is shared between teams).
+ * by these priorities, each one always beating everything below it:
+ *   1. Arriving guests: no clean finishes after the next guests arrive. Being late for
+ *      guests always comes first, whatever it costs in overtime or driving.
+ *   2. Finishing on time: nobody works past the end of the working day, however much
+ *      extra driving that takes.
+ *   3. Driving: as little as possible, with a gentle preference for finishing the day
+ *      earlier, which shares the work between the teams.
  *
  * Small days (the usual case) are solved exactly by checking every possible plan, with
  * pruning. Big days fall back to a strong heuristic (cheapest insertion plus local search
@@ -37,7 +39,11 @@ export interface PlanJob {
 
 export interface PlanTeam {
   id: string;
-  /** Where the team sets off from. Null means the first drive isn't counted. */
+  /**
+   * Where the team sets off from. Null means we don't know, so the drives to the first
+   * clean and back home are each guessed as UNKNOWN_LEG_MINUTES (not free, which would
+   * favour teams with no start point).
+   */
   home: LatLng | null;
 }
 
@@ -52,7 +58,7 @@ export interface PlanOptions {
 
 export interface PlannedStop {
   jobId: string;
-  /** Driving from the previous clean (or from the team's start point). */
+  /** Driving from the previous clean (or from the team's start point, guessed if that isn't known). */
   driveMinutes: number;
   arrive: number;
   start: number;
@@ -145,9 +151,18 @@ export function googleMapsRouteUrl(origin: string | null, stops: string[]): stri
 
 /* ---------------------------------------------------------------------- Planning */
 
-const LATE_WEIGHT = 100; // a minute late for arriving guests is worth 100 minutes of driving
-const OVERTIME_WEIGHT = 10; // a minute past the end of the day is worth 10 minutes of driving
-const MAKESPAN_WEIGHT = 0.25; // finishing earlier is a gentle tie-breaker that shares the work
+/*
+ * The weights make the priorities effectively strict: on any real day the driving (plus
+ * the makespan term) stays well under 1,000 minutes, and so does the total overtime, so
+ * no amount of a lower tier can outweigh a single minute of a higher one.
+ */
+// Tier 1: a minute late for arriving guests outweighs any overtime or driving.
+const LATE_WEIGHT = 1_000_000;
+// Tier 2: a minute past the end of the working day outweighs any amount of driving.
+const OVERTIME_WEIGHT = 1_000;
+// Tier 3 is blended: driving minutes plus a quarter of the time until the last team
+// finishes, a gentle preference for sharing the work rather than one team doing it all.
+const MAKESPAN_WEIGHT = 0.25;
 const EPS = 1e-9;
 
 interface Model {
@@ -164,8 +179,9 @@ interface Model {
 function buildModel(jobs: PlanJob[], teams: PlanTeam[], opts: PlanOptions): Model {
   const n = jobs.length;
   const leg = jobs.map((a) => jobs.map((b) => (a === b ? 0 : travelMinutes(a.location, b.location))));
-  const fromHome = teams.map((t) => jobs.map((j) => (t.home ? travelMinutes(t.home, j.location) : 0)));
-  const toHome = teams.map((t) => jobs.map((j) => (t.home ? travelMinutes(j.location, t.home) : 0)));
+  // With no start point (or no location for the house), travelMinutes guesses UNKNOWN_LEG_MINUTES.
+  const fromHome = teams.map((t) => jobs.map((j) => travelMinutes(t.home, j.location)));
+  const toHome = teams.map((t) => jobs.map((j) => travelMinutes(j.location, t.home)));
   const teamIds = new Set(teams.map((t) => t.id));
   const allowed = teams.map((t) => jobs.map((j) => !j.pinnedTeamId || !teamIds.has(j.pinnedTeamId) || j.pinnedTeamId === t.id));
   return { n, jobs, teams, opts, leg, fromHome, toHome, allowed };
@@ -423,7 +439,11 @@ function heuristicSearch(m: Model): number[][] {
   return best!;
 }
 
-/** Plans one day. Jobs and teams may be given in any order; the answer doesn't depend on it. */
+/**
+ * Plans one day. The jobs may be given in any order: they're sorted by id first, so the
+ * answer doesn't depend on it. The order of the teams can matter, but only to break exact
+ * ties between equally good plans.
+ */
 export function planDay(jobsIn: PlanJob[], teams: PlanTeam[], opts: PlanOptions): DayPlan {
   const jobs = [...jobsIn].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   if (teams.length === 0 || jobs.length === 0) {

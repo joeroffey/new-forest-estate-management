@@ -6,7 +6,8 @@ import type { LatLng } from "@/lib/cleaning/planner";
  * postcode district ("SO41") or the town is used instead, which is less exact.
  */
 const API = (process.env.POSTCODES_API_URL || "https://api.postcodes.io").replace(/\/+$/, "");
-const TIMEOUT_MS = 6000;
+/** Per request. Lookups run side by side in at most two rounds, so the whole lookup takes ~8 s at worst. */
+const TIMEOUT_MS = 4000;
 
 /** "so41 9zz" → "SO41 9ZZ"; null if it isn't a full UK postcode. */
 export function normalisePostcode(value: string | null | undefined): string | null {
@@ -39,6 +40,8 @@ export type LocationResult = LatLng | "not_found";
 async function getJson(url: string, init?: RequestInit): Promise<{ status: number; body: Record<string, unknown> | null }> {
   const res = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS), cache: "no-store" });
   const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+  // A cut-off or garbled answer must count as "didn't answer", not as "not found".
+  if (res.ok && !body) throw new Error("postcodes.io sent an answer we couldn't read");
   return { status: res.status, body };
 }
 
@@ -68,53 +71,76 @@ async function lookUpTown(town: string): Promise<LocationResult> {
   return point(local ?? pool[0]) ?? "not_found";
 }
 
+/** Full postcodes: one request for the whole batch, then the district for any it doesn't know. */
+async function lookUpPostcodes(batch: string[], out: Map<string, LocationResult>): Promise<void> {
+  let results: Array<{ query?: string; result?: unknown }>;
+  try {
+    const { status, body } = await getJson(`${API}/postcodes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postcodes: batch }),
+    });
+    if (status !== 200) throw new Error(`postcodes.io answered ${status}`);
+    results = (Array.isArray(body?.result) ? body.result : []) as Array<{ query?: string; result?: unknown }>;
+  } catch (err) {
+    console.warn("[cleaning] postcode lookup failed", err instanceof Error ? err.message : err);
+    return; // try again next time
+  }
+
+  const unknown: string[] = [];
+  for (const pc of batch) {
+    const hit = results.find((r) => normalisePostcode(r.query) === pc);
+    const p = point(hit?.result);
+    if (p) out.set(`postcode:${pc}`, p);
+    else unknown.push(pc);
+  }
+  if (unknown.length === 0) return;
+
+  // Not a known postcode (new build, or a typo): fall back to its district, all at once.
+  const districtOf = (pc: string) => pc.split(" ")[0]!;
+  const districts = [...new Set(unknown.map(districtOf))];
+  const found = new Map<string, LocationResult>();
+  await Promise.all(
+    districts.map(async (d) => {
+      try {
+        found.set(d, await lookUpOutcode(d));
+      } catch (err) {
+        console.warn("[cleaning] location lookup failed", `outcode:${d}`, err instanceof Error ? err.message : err);
+      }
+    }),
+  );
+  for (const pc of unknown) {
+    const r = found.get(districtOf(pc));
+    if (r) out.set(`postcode:${pc}`, r); // otherwise: try again next time
+  }
+}
+
 /**
- * Looks up several places at once. Places that couldn't be checked (the service was down)
- * are left out of the result, so they're tried again next time.
+ * Looks up several places at once. The requests run side by side, so this takes about
+ * 8 seconds at worst. Places that couldn't be checked (the service was down or slow) are
+ * left out of the result, so they're tried again next time.
  */
 export async function lookUpLocations(queries: string[]): Promise<Map<string, LocationResult>> {
   const out = new Map<string, LocationResult>();
   const unique = [...new Set(queries)];
   const postcodes = unique.filter((q) => q.startsWith("postcode:")).map((q) => q.slice("postcode:".length));
 
+  const tasks: Array<Promise<void>> = [];
   // Full postcodes: one request for up to 100 at a time.
-  for (let i = 0; i < postcodes.length; i += 100) {
-    const batch = postcodes.slice(i, i + 100);
-    try {
-      const { status, body } = await getJson(`${API}/postcodes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postcodes: batch }),
-      });
-      if (status !== 200) throw new Error(`postcodes.io answered ${status}`);
-      const results = (Array.isArray(body?.result) ? body.result : []) as Array<{ query?: string; result?: unknown }>;
-      for (const pc of batch) {
-        const hit = results.find((r) => normalisePostcode(r.query) === pc);
-        const p = point(hit?.result);
-        if (p) {
-          out.set(`postcode:${pc}`, p);
-        } else {
-          // Not a known postcode (new build, or a typo): fall back to its district.
-          const district = pc.split(" ")[0]!;
-          try {
-            out.set(`postcode:${pc}`, await lookUpOutcode(district));
-          } catch {
-            /* try again next time */
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("[cleaning] postcode lookup failed", err instanceof Error ? err.message : err);
-    }
-  }
-
+  for (let i = 0; i < postcodes.length; i += 100) tasks.push(lookUpPostcodes(postcodes.slice(i, i + 100), out));
+  // Districts and towns, alongside the postcodes.
   for (const q of unique) {
-    try {
-      if (q.startsWith("outcode:")) out.set(q, await lookUpOutcode(q.slice("outcode:".length)));
-      else if (q.startsWith("town:")) out.set(q, await lookUpTown(q.slice("town:".length)));
-    } catch (err) {
-      console.warn("[cleaning] location lookup failed", q, err instanceof Error ? err.message : err);
-    }
+    if (!q.startsWith("outcode:") && !q.startsWith("town:")) continue;
+    tasks.push(
+      (async () => {
+        try {
+          out.set(q, q.startsWith("outcode:") ? await lookUpOutcode(q.slice("outcode:".length)) : await lookUpTown(q.slice("town:".length)));
+        } catch (err) {
+          console.warn("[cleaning] location lookup failed", q, err instanceof Error ? err.message : err);
+        }
+      })(),
+    );
   }
+  await Promise.all(tasks);
   return out;
 }

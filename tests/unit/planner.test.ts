@@ -193,6 +193,41 @@ test("a pin to a team that isn't working is ignored", () => {
   assert.deepEqual(routeIds(plan), [["a"]]);
 });
 
+test("finishing on time beats any amount of driving", () => {
+  // Two long cleans in the same block in Lymington. The local team alone would finish
+  // 30 minutes past 5pm; the only way to avoid that is a team driving in from Oxford,
+  // nearly four hours each way.
+  const oxford: LatLng = { lat: 51.752, lng: -1.2577 };
+  const jobs = [job("a", "lymington", { duration: 240 }), job("b", "lymington", { duration: 210 })];
+  const teams = [
+    { id: "local", home: PLACES.lymington! },
+    { id: "far", home: oxford },
+  ];
+  const plan = planDay(jobs, teams, DAY);
+  const [local, far] = routeIds(plan);
+  assert.deepEqual(local, ["a"]);
+  assert.deepEqual(far, ["b"]);
+  assert.equal(plan.overtimeMinutes, 0);
+  assert.equal(plan.lateMinutes, 0);
+  // Avoiding 30 minutes of overtime was worth far more driving than 10 minutes per minute.
+  assert.ok(plan.driveMinutes > 30 * 10, `drove ${plan.driveMinutes} min`);
+  assert.equal(plan.driveMinutes, 2 * travelMinutes(PLACES.lymington!, oxford));
+});
+
+test("being on time for arriving guests beats any amount of overtime", () => {
+  // Two flats in the same block. "long" is free from 9am; "urgent" is free from noon and
+  // the next guests arrive at 4:59pm. Doing "long" first finishes at 5pm, a minute late
+  // for those guests. Waiting for "urgent" first is on time but runs three hours over.
+  const jobs = [
+    job("long", "lymington", { ready: 9 * 60, duration: 360 }),
+    job("urgent", "lymington", { ready: 12 * 60, duration: 120, deadline: 16 * 60 + 59 }),
+  ];
+  const plan = planDay(jobs, [{ id: "t", home: PLACES.lymington! }], DAY);
+  assert.deepEqual(routeIds(plan), [["urgent", "long"]]);
+  assert.equal(plan.lateMinutes, 0);
+  assert.equal(plan.overtimeMinutes, 180);
+});
+
 test("the same day always gives the same plan, whatever order it's read in", () => {
   const rand = seeded(7);
   const { jobs, teams } = randomDay(rand, 9, 2);

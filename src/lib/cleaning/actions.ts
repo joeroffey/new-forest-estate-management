@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { friendlyDbError } from "@/lib/errors";
 import { getSettings } from "@/lib/settings";
 import { logActivity } from "@/lib/activity";
-import { formatDayMonth, isValidISODate } from "@/lib/format";
+import { formatDayMonth, isValidISODate, todayISO } from "@/lib/format";
 import { replanCleaning } from "@/lib/bookings/sync";
 import { buildDayPlanMessage, getDayView } from "@/lib/cleaning/day";
 import { normalisePostcode } from "@/lib/cleaning/geocode";
@@ -17,10 +17,12 @@ import type { ActionState } from "@/lib/types";
 
 const uuid = z.string().uuid();
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Choose a time");
+const PAST_DAY = "That day has passed, so its plan can't be changed.";
 
 function done(message: string, problems: string[] = []): ActionState {
   revalidatePath("/admin", "layout");
-  if (problems.length) return { ok: true, message: `${message}. Notion couldn't be fully updated: ${problems[0]}` };
+  // Problems are either Notion ("Notion (REF): …") or planning ("Cleaning plan (days): …").
+  if (problems.length) return { ok: true, message: `${message}, but not everything went through: ${problems[0]}` };
   return { ok: true, message };
 }
 
@@ -107,6 +109,7 @@ export async function setWorkingTeams(day: string, teamIds: string[] | null): Pr
   const viewer = await adminOrError();
   if ("error" in viewer) return viewer;
   if (!isValidISODate(day)) return { error: "Choose a day." };
+  if (day < todayISO()) return { error: PAST_DAY };
   if (teamIds && !teamIds.every((t) => uuid.safeParse(t).success)) return { error: "We couldn't find one of those teams." };
   const supabase = await createClient();
   const { error } = await supabase.from("cleaning_days").upsert({ day, team_ids: teamIds }, { onConflict: "day" });
@@ -124,6 +127,7 @@ export async function moveCleanToTeam(bookingId: string, teamId: string | null):
   const { data } = await supabase.from("cleaning_jobs").select("day").eq("booking_id", bookingId).maybeSingle();
   const day = (data as unknown as { day: string } | null)?.day;
   if (!day) return { error: "We couldn't find that clean in the plan." };
+  if (day < todayISO()) return { error: PAST_DAY };
   const { error } = await supabase
     .from("cleaning_jobs")
     .update({ pinned_team_id: teamId, pinned_day: teamId ? day : null })
@@ -137,6 +141,7 @@ export async function replanCleaningDay(day: string): Promise<ActionState> {
   const viewer = await adminOrError();
   if ("error" in viewer) return viewer;
   if (!isValidISODate(day)) return { error: "Choose a day." };
+  if (day < todayISO()) return { error: PAST_DAY };
   // Force a fresh look-up of anything without a map location.
   const admin = createAdminClient();
   const { data } = await admin.from("bookings").select("property_id").eq("status", "confirmed").eq("departure_date", day);
@@ -162,7 +167,8 @@ export async function sendCleaningPlanToWhatsApp(day: string): Promise<ActionSta
   } catch (err) {
     return { error: err instanceof Error ? err.message : "WhatsApp didn't accept the message." };
   }
-  await createAdminClient().from("cleaning_days").upsert({ day, whatsapp_sent_at: new Date().toISOString() }, { onConflict: "day" });
+  // Recorded separately from the automatic morning message, so sending early doesn't stop it.
+  await createAdminClient().from("cleaning_days").upsert({ day, whatsapp_manual_sent_at: new Date().toISOString() }, { onConflict: "day" });
   await logActivity({ kind: "cleaning.whatsapp", message: `${displayName(viewer)} sent the cleaning plan for ${formatDayMonth(day)} to WhatsApp`, actorId: viewer.user.id, actorName: displayName(viewer) });
   revalidatePath("/admin/cleaning");
   return { ok: true, message: `Plan for ${formatDayMonth(day)} sent to ${s.whatsapp_chat_name ?? "the WhatsApp group"}` };

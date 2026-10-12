@@ -10,27 +10,20 @@ import { isWhatsAppConfigured, sendWhatsAppMessage } from "@/lib/integrations/wh
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-/** The UK hour right now (0–23). */
-function ukHour(): number {
-  return Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", hour12: false }).format(new Date()));
-}
-
 /**
  * Runs every morning (see vercel.json): plans today's cleans again with the latest
  * bookings, then posts the plan to the cleaners' WhatsApp group. It only ever sends
- * once per day, however many times it's called.
+ * once per day, however many times it's called. Vercel signs its call with CRON_SECRET,
+ * which must be set: without it, nobody can run this.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    if (request.headers.get("authorization") !== `Bearer ${secret}`) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
-  } else if (ukHour() < 5 || ukHour() >= 12) {
-    // Without a secret, only allow the morning window so nobody can trigger it at odd hours.
-    return NextResponse.json({ sent: false, reason: "Outside the morning window" });
-  }
+  if (!secret) return NextResponse.json({ error: "CRON_SECRET isn't set" }, { status: 503 });
+  if (request.headers.get("authorization") !== `Bearer ${secret}`) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
 
   const day = todayISO();
-  await replanCleaning([day]);
+  // Notion is brought up to date after the response, so it never holds up the morning message.
+  await replanCleaning([day], { background: true });
 
   const s = await getSettings();
   if (!s.cleaning_plan_whatsapp) return NextResponse.json({ sent: false, reason: "The morning message is turned off in Settings" });

@@ -93,10 +93,13 @@ export async function saveProperty(_prev: ActionState, formData: FormData): Prom
   if (!customerId && !id) return { error: "We couldn't tell which customer this property belongs to." };
 
   if (id) {
-    const { error } = await supabase.from("properties").update(row).eq("id", id);
+    const { data: updated, error } = await supabase.from("properties").update(row).eq("id", id).select("id");
     if (error) return { error: friendlyDbError(error, "We couldn't save the property.") };
     // The address or clean time may have changed: re-plan this house's upcoming cleans.
-    await replanCleaning(await upcomingDaysForProperty(id), { background: true });
+    // Only when a row was really saved (row level security hides other people's properties).
+    if (((updated ?? []) as unknown as Array<{ id: string }>).length > 0) {
+      await replanCleaning(await upcomingDaysForProperty(id), { background: true });
+    }
   } else {
     const { data, error } = await supabase
       .from("properties")

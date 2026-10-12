@@ -31,7 +31,10 @@ export interface DayView {
   overridden: boolean;
   routes: DayRoute[];
   unassigned: DayStop[];
+  /** When the automatic morning message went out. */
   whatsappSentAt: string | null;
+  /** When an admin last sent the plan from the Cleaning page. */
+  whatsappManualSentAt: string | null;
   dayStart: string;
   dayEnd: string;
 }
@@ -68,13 +71,19 @@ export async function getDayView(day: string): Promise<DayView> {
     ids.length
       ? admin
           .from("bookings")
-          .select(`id, reference, checkout_time, adults, children, infants, dogs, setup, extras, notes, property:properties(${PLAN_PROPERTY_FIELDS}), customer:customers(id, full_name)`)
+          .select(
+            `id, reference, status, departure_date, checkout_time, adults, children, infants, dogs, setup, extras, notes, property:properties(${PLAN_PROPERTY_FIELDS}), customer:customers(id, full_name)`,
+          )
           .in("id", ids)
       : Promise.resolve({ data: [] }),
     nextIds.length ? admin.from("bookings").select("id, arrival_time, property:properties(default_arrival_time)").in("id", nextIds) : Promise.resolve({ data: [] }),
   ]);
   const bookings = new Map(
-    ((bookingData ?? []) as unknown as Array<DayStop["booking"] & { property: PlanProperty; customer: DayStop["customer"] }>).map((b) => [b.id, b]),
+    (
+      (bookingData ?? []) as unknown as Array<
+        DayStop["booking"] & Pick<Booking, "status" | "departure_date"> & { property: PlanProperty; customer: DayStop["customer"] }
+      >
+    ).map((b) => [b.id, b]),
   );
   const arrivals = new Map(
     ((nextData ?? []) as unknown as Array<{ id: string; arrival_time: string | null; property: { default_arrival_time: string } | null }>).map((n) => [
@@ -86,8 +95,9 @@ export async function getDayView(day: string): Promise<DayView> {
   const stops: DayStop[] = [];
   for (const job of jobs) {
     const b = bookings.get(job.booking_id);
-    if (!b?.property) continue;
-    const { property, customer, ...booking } = b;
+    // A plan left over from before a cancellation or a date change must never show.
+    if (!b?.property || b.status !== "confirmed" || b.departure_date !== day) continue;
+    const { property, customer, status: _status, departure_date: _departure, ...booking } = b;
     stops.push({
       job,
       booking,
@@ -120,6 +130,7 @@ export async function getDayView(day: string): Promise<DayView> {
     routes,
     unassigned,
     whatsappSentAt: override?.whatsapp_sent_at ?? null,
+    whatsappManualSentAt: override?.whatsapp_manual_sent_at ?? null,
     dayStart: settings.clean_day_start.slice(0, 5),
     dayEnd: settings.clean_day_end.slice(0, 5),
   };

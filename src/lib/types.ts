@@ -71,12 +71,17 @@ export interface CleaningJob {
   pinned_day: string | null;
   signature: string | null;
   planned_at: string;
+  /** The plan changed and Notion hasn't been sent the new version yet. */
+  notion_pending: boolean;
 }
 
 export interface CleaningDay {
   day: string;
   team_ids: string[] | null;
+  /** When the automatic morning message went out (or is going out). */
   whatsapp_sent_at: string | null;
+  /** When an admin last sent the plan from the Cleaning page. */
+  whatsapp_manual_sent_at: string | null;
   updated_at: string;
 }
 

@@ -27,7 +27,7 @@ import {
   type SyncKind,
 } from "@/lib/bookings/messages";
 import { extraLabel } from "@/lib/bookings/schema";
-import { daysAffectedByBookings, replanDays, upcomingCleaningDays } from "@/lib/cleaning/plan";
+import { daysAffectedByBookings, pendingNotionBookingIds, replanDays, upcomingCleaningDays } from "@/lib/cleaning/plan";
 import type { Booking, CleaningJob, Customer, CustomerContact, Property, Settings } from "@/lib/types";
 
 export type ChannelStatus = "sent" | "failed" | "off";
@@ -58,8 +58,13 @@ async function loadContexts(bookingIds: string[], settings: Settings): Promise<B
   const rows = (data ?? []) as unknown as BookingRow[];
   if (rows.length === 0) return [];
 
-  // Each changeover's place in the cleaning plan (and its team's name).
-  const { data: planData } = await admin.from("cleaning_jobs").select("*, team:cleaning_teams(name)").in("booking_id", bookingIds);
+  // Each changeover's place in the cleaning plan (and its team's name). cleaning_jobs has two
+  // links to cleaning_teams (team_id and pinned_team_id), so the embed must name which one.
+  const { data: planData, error: planError } = await admin
+    .from("cleaning_jobs")
+    .select("*, team:cleaning_teams!team_id(name)")
+    .in("booking_id", bookingIds);
+  if (planError) console.error("[cleaning] couldn't load the cleaning plan for these bookings", planError.message);
   const plans = new Map(
     ((planData ?? []) as unknown as Array<CleaningJob & { team: { name: string } | null }>).map(({ team, ...job }) => [
       job.booking_id,
@@ -224,6 +229,16 @@ async function syncNotion(kind: SyncKind | "refresh", contexts: BookingContext[]
         .from("bookings")
         .update({ notion_page_id: pageId, notion_synced_at: new Date().toISOString(), notion_error: null })
         .eq("id", b.id);
+      // Notion now has this version of the clean's plan. Matching planned_at means a plan
+      // saved since these details were loaded stays pending, so it's sent next time.
+      if (ctx.plan) {
+        const { error: pendingError } = await admin
+          .from("cleaning_jobs")
+          .update({ notion_pending: false })
+          .eq("booking_id", b.id)
+          .eq("planned_at", ctx.plan.planned_at);
+        if (pendingError) console.warn("[cleaning] couldn't mark a clean as sent to Notion", pendingError.message);
+      }
     } catch (err) {
       const message = errorMessage(err);
       problems.push(`Notion (${b.reference}): ${message}`);
@@ -391,7 +406,9 @@ export async function syncBookings(
   // Re-plan the cleaning for every day this change touches, before telling Notion about it.
   let replanned: string[] = [];
   try {
-    replanned = (await replanDays(await daysAffectedByBookings(bookingIds))).changed;
+    const r = await replanDays(await daysAffectedByBookings(bookingIds));
+    replanned = r.changed;
+    if (r.problems.length) console.error("[cleaning] re-planning failed", r.problems);
   } catch (err) {
     console.error("[cleaning] re-planning failed", err);
   }
@@ -466,36 +483,57 @@ function runLater(task: () => Promise<unknown>) {
   }
 }
 
+/** At most this many bookings are sent to Notion per refresh; the rest wait for the next one. */
+const NOTION_REFRESH_LIMIT = 150;
+/** Bookings looked up per database request, so the request URL stays short. */
+const LOOKUP_CHUNK = 100;
+
 /** Sends the latest details of these bookings to Notion without changing their status. */
-export async function refreshNotionBookings(ids: string[]): Promise<{ count: number; problems: string[] }> {
+export async function refreshNotionBookings(idsIn: string[]): Promise<{ count: number; problems: string[] }> {
+  const ids = [...new Set(idsIn)].slice(0, NOTION_REFRESH_LIMIT);
   if (ids.length === 0) return { count: 0, problems: [] };
   const settings = await getSettings();
   if (!settings.notion_enabled || !settings.notion_database_id || !isNotionConfigured()) return { count: 0, problems: [] };
   const admin = createAdminClient();
-  const { data } = await admin.from("bookings").select("id").in("id", ids).eq("status", "confirmed");
-  const confirmed = ((data ?? []) as unknown as Array<{ id: string }>).map((r) => r.id);
-  if (confirmed.length === 0) return { count: 0, problems: [] };
-  const contexts = await loadContexts(confirmed, settings);
-  const { problems } = await syncNotion("refresh", contexts, settings, await getBaseUrl());
-  return { count: contexts.length, problems };
+  const contexts: BookingContext[] = [];
+  const problems: string[] = [];
+  for (let i = 0; i < ids.length; i += LOOKUP_CHUNK) {
+    try {
+      const { data, error } = await admin.from("bookings").select("id").in("id", ids.slice(i, i + LOOKUP_CHUNK)).eq("status", "confirmed");
+      if (error) throw new Error(`Could not load bookings: ${error.message}`);
+      const confirmed = ((data ?? []) as unknown as Array<{ id: string }>).map((r) => r.id);
+      if (confirmed.length) contexts.push(...(await loadContexts(confirmed, settings)));
+    } catch (err) {
+      problems.push(errorMessage(err));
+    }
+  }
+  if (contexts.length === 0) return { count: 0, problems };
+  const notion = await syncNotion("refresh", contexts, settings, await getBaseUrl());
+  return { count: contexts.length, problems: [...problems, ...notion.problems] };
 }
 
 /**
  * Plans the given days again (or every upcoming day) and updates Notion for each clean
- * whose plan changed. Used after changes to teams, houses or working hours.
+ * whose plan changed, plus any earlier changes that didn't reach Notion. Used after
+ * changes to teams, houses or working hours.
  */
 export async function replanCleaning(days: string[] | "upcoming", opts: { background?: boolean } = {}): Promise<{ changed: number; problems: string[] }> {
   try {
     const list = days === "upcoming" ? await upcomingCleaningDays() : days;
-    const { changed } = await replanDays(list);
-    if (changed.length) {
-      if (opts.background) runLater(() => refreshNotionBookings(changed));
-      else {
-        const r = await refreshNotionBookings(changed);
-        return { changed: changed.length, problems: r.problems };
-      }
+    const { changed, problems } = await replanDays(list);
+    // Anything an earlier run couldn't send is retried in the background, so it never holds anyone up.
+    const pending = (await pendingNotionBookingIds(100)).filter((id) => !changed.includes(id));
+    if (opts.background) {
+      const toSend = [...changed, ...pending].slice(0, NOTION_REFRESH_LIMIT);
+      if (toSend.length) runLater(() => refreshNotionBookings(toSend));
+      return { changed: changed.length, problems };
     }
-    return { changed: changed.length, problems: [] };
+    if (pending.length) runLater(() => refreshNotionBookings(pending));
+    if (changed.length) {
+      const r = await refreshNotionBookings(changed);
+      return { changed: changed.length, problems: [...problems, ...r.problems] };
+    }
+    return { changed: changed.length, problems };
   } catch (err) {
     console.error("[cleaning] re-planning failed", err);
     return { changed: 0, problems: [errorMessage(err)] };

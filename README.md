@@ -110,7 +110,7 @@ If Notion or WhatsApp fails, the booking is still saved. The dashboard's **Needs
 - **Set up**: **Settings → Cleaning teams**. Add each team with the postcode they set off from. Untick "Usually works" for a team that only helps on busy days. Set when teams set off and when they should finish by.
 - **How long each house takes**: on each property's page (admins only). Until you set it, it's estimated from the bedrooms and bathrooms.
 - **On the day's page** you can tick which teams are working, move a clean to a particular team (the rest is re-planned around it), open each team's route in Google Maps, and send the plan to the WhatsApp group.
-- **Each morning (around 7am)** the day's plan is posted to the cleaners' WhatsApp group automatically, once per day. Turn this off in Settings. For extra protection, add a `CRON_SECRET` environment variable in Vercel (any long random text); Vercel then signs its morning call with it.
+- **Early each morning (about 6–7am UK time)** the day's plan is posted to the cleaners' WhatsApp group automatically, once per day. Turn this off in Settings. It needs the `CRON_SECRET` environment variable in Vercel (already set up): Vercel signs its morning call with it, and the call is refused without it.
 - **In Notion**, each booking gets **Clean start** (the planned time), **Team**, **Run order** ("2 of 4"), **Drive** and a **Day route** link. The Cleaning calendar uses Clean start, so the day reads in order.
 
 Drive times are estimated from the distance between postcodes (looked up free from postcodes.io), allowing for winding roads and parking.

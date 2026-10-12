@@ -77,11 +77,13 @@ where not exists (select 1 from public.cleaning_teams);
 -- Days: which teams are working (when it differs from usual)
 -- -----------------------------------------------------------------------------
 create table if not exists public.cleaning_days (
-  day              date primary key,
-  team_ids         uuid[],          -- null means the teams that usually work
-  whatsapp_sent_at timestamptz,
-  updated_at       timestamptz not null default now()
+  day                     date primary key,
+  team_ids                uuid[],          -- null means the teams that usually work
+  whatsapp_sent_at        timestamptz,     -- the automatic morning message (once per day)
+  whatsapp_manual_sent_at timestamptz,     -- sent by an admin from the Cleaning page
+  updated_at              timestamptz not null default now()
 );
+alter table public.cleaning_days add column if not exists whatsapp_manual_sent_at timestamptz;
 
 drop trigger if exists cleaning_days_touch on public.cleaning_days;
 create trigger cleaning_days_touch before update on public.cleaning_days
@@ -109,8 +111,11 @@ create table if not exists public.cleaning_jobs (
   pinned_team_id  uuid references public.cleaning_teams (id) on delete set null,
   pinned_day      date,
   signature       text,
-  planned_at      timestamptz not null default now()
+  planned_at      timestamptz not null default now(),
+  -- The plan changed and Notion hasn't been sent it yet (retried until it has).
+  notion_pending  boolean not null default false
 );
+alter table public.cleaning_jobs add column if not exists notion_pending boolean not null default false;
 create index if not exists cleaning_jobs_day on public.cleaning_jobs (day);
 create index if not exists cleaning_jobs_next on public.cleaning_jobs (next_booking_id);
 

@@ -23,6 +23,11 @@ const t = (value: string | null | undefined) => formatTimeFriendly(value?.slice(
 function StopItem({ stop, index, teams }: { stop: DayStop; index: number | null; teams: Array<{ id: string; name: string }> }) {
   const { job, property, booking } = stop;
   const late = job.late_minutes > 0;
+  // A pin only counts for the day it was made on, and only shows while that team really has the clean.
+  const pinnedToday = !!job.pinned_team_id && job.pinned_day === job.day;
+  const givenToThisTeam = pinnedToday && job.pinned_team_id === job.team_id;
+  // The select can only show a pin to a team that's working (one of its options).
+  const pinnedTeamId = pinnedToday && teams.some((x) => x.id === job.pinned_team_id) ? job.pinned_team_id : null;
   return (
     <li className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-x-3 py-4 first:pt-0 last:pb-0">
       <span
@@ -48,7 +53,7 @@ function StopItem({ stop, index, teams }: { stop: DayStop; index: number | null;
               bookingId={booking.id}
               teams={teams}
               currentTeamId={job.team_id}
-              pinnedTeamId={job.pinned_day === job.day ? job.pinned_team_id : null}
+              pinnedTeamId={pinnedTeamId}
               label={`Which team cleans ${property.name}`}
             />
           ) : null}
@@ -67,7 +72,7 @@ function StopItem({ stop, index, teams }: { stop: DayStop; index: number | null;
               {job.drive_minutes === 0 ? `Next door to ${job.drive_from}` : `${job.drive_minutes} min from ${job.drive_from}`}
             </Badge>
           ) : null}
-          {job.pinned_team_id && job.pinned_day === job.day ? (
+          {givenToThisTeam ? (
             <Badge tone="sage" icon={<Pin className="size-3" aria-hidden />}>
               Given to this team
             </Badge>
@@ -108,6 +113,12 @@ export default async function CleaningPage({ searchParams }: { searchParams: Pro
   const lastFinish = view.routes.map((r) => r.finish).filter((f): f is string => !!f).sort().at(-1) ?? null;
   const usedTeams = view.routes.filter((r) => r.stops.length).length;
   const whatsappReady = !!settings.whatsapp_chat_id && isWhatsAppConfigured(settings.whatsapp_provider);
+  // The latest send, whether the automatic morning message or one sent from this page.
+  const lastSentAt =
+    [view.whatsappSentAt, view.whatsappManualSentAt]
+      .filter((x): x is string => !!x)
+      .sort((a, b) => Date.parse(a) - Date.parse(b))
+      .at(-1) ?? null;
   const link = (d: string) => `/admin/cleaning?date=${d}`;
 
   return (
@@ -268,8 +279,8 @@ export default async function CleaningPage({ searchParams }: { searchParams: Pro
           <Panel
             title="Send to the cleaners"
             description={
-              view.whatsappSentAt
-                ? `Sent to WhatsApp on ${new Date(view.whatsappSentAt).toLocaleString("en-GB", { timeZone: "Europe/London", weekday: "short", hour: "numeric", minute: "2-digit" })}.`
+              lastSentAt
+                ? `Sent to WhatsApp on ${new Date(lastSentAt).toLocaleString("en-GB", { timeZone: "Europe/London", weekday: "short", hour: "numeric", minute: "2-digit" })}.`
                 : settings.cleaning_plan_whatsapp && whatsappReady
                   ? "The plan is posted to the cleaners' WhatsApp group automatically each morning."
                   : "Send this day's plan to the cleaners' WhatsApp group."

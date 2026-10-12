@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSettings } from "@/lib/settings";
-import { addDaysISO, formatDuration, formatTimeFriendly, todayISO } from "@/lib/format";
+import { addDaysISO, formatDayMonth, formatDuration, formatTimeFriendly, todayISO } from "@/lib/format";
+import { errorMessage } from "@/lib/errors";
 import { propertyAddress } from "@/lib/bookings/messages";
 import { estimateCleanMinutes, formatClock, googleMapsRouteUrl, parseClock, planDay, type PlanJob } from "@/lib/cleaning/planner";
 import { isApproximate, locationQuery, lookUpLocations, normalisePostcode } from "@/lib/cleaning/geocode";
@@ -9,7 +10,8 @@ import type { Booking, CleaningDay, CleaningJob, CleaningTeam, Property } from "
 /**
  * Keeps the cleaning plan up to date. Whenever bookings, houses, teams or working hours
  * change, the affected days are planned again and only the cleans whose plan actually
- * changed are saved (and sent on to Notion by the caller).
+ * changed are saved (and sent on to Notion by the caller). A changed clean is marked
+ * notion_pending until Notion has it, so one that couldn't be sent is retried later.
  */
 
 export const PLAN_PROPERTY_FIELDS =
@@ -34,7 +36,7 @@ export type PlanProperty = Pick<
 
 type Departure = Pick<Booking, "id" | "property_id" | "departure_date" | "checkout_time"> & { property: PlanProperty | null };
 type Arrival = Pick<Booking, "id" | "property_id" | "arrival_date" | "arrival_time">;
-type PlanRow = Omit<CleaningJob, "pinned_team_id" | "pinned_day" | "planned_at">;
+type PlanRow = Omit<CleaningJob, "pinned_team_id" | "pinned_day" | "planned_at" | "notion_pending">;
 
 export function cleanMinutesFor(p: Pick<Property, "clean_minutes" | "bedrooms" | "bathrooms">): number {
   return p.clean_minutes ?? estimateCleanMinutes(p.bedrooms, p.bathrooms);
@@ -108,20 +110,46 @@ export interface ReplanResult {
   /** Bookings whose planned clean changed (so Notion needs updating). */
   changed: string[];
   days: string[];
+  /** Days that couldn't be planned (the rest were still planned and saved). */
+  problems: string[];
 }
 
 /** Plans the given days again (days in the past are left as they were). */
 export async function replanDays(daysIn: Iterable<string>): Promise<ReplanResult> {
   const today = todayISO();
   const days = [...new Set(daysIn)].filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= today).sort();
-  if (days.length === 0) return { changed: [], days: [] };
+  if (days.length === 0) return { changed: [], days: [], problems: [] };
 
   const changed: string[] = [];
-  // Plan in chunks so each database request stays small.
+  const problems: string[] = [];
+  // Plan in chunks so each database request stays small. A chunk that fails doesn't stop the others.
   for (let i = 0; i < days.length; i += 40) {
-    changed.push(...(await replanChunk(days.slice(i, i + 40))));
+    const chunk = days.slice(i, i + 40);
+    try {
+      changed.push(...(await replanChunk(chunk)));
+    } catch (err) {
+      console.error("[cleaning] re-planning failed for", chunk[0], "to", chunk[chunk.length - 1], err);
+      const span = chunk.length > 1 ? `${formatDayMonth(chunk[0]!)} to ${formatDayMonth(chunk[chunk.length - 1]!)}` : formatDayMonth(chunk[0]!);
+      problems.push(`Cleaning plan (${span}): ${errorMessage(err)}`);
+    }
   }
-  return { changed, days };
+  return { changed, days, problems };
+}
+
+/** Upcoming cleans whose latest plan hasn't reached Notion yet (oldest day first). */
+export async function pendingNotionBookingIds(limit = 100): Promise<string[]> {
+  const { data, error } = await createAdminClient()
+    .from("cleaning_jobs")
+    .select("booking_id")
+    .eq("notion_pending", true)
+    .gte("day", todayISO())
+    .order("day", { ascending: true })
+    .limit(limit);
+  if (error) {
+    console.error("[cleaning] couldn't check for cleans waiting to go to Notion", error.message);
+    return [];
+  }
+  return ((data ?? []) as unknown as Array<{ booking_id: string }>).map((r) => r.booking_id);
 }
 
 async function replanChunk(days: string[]): Promise<string[]> {
@@ -165,6 +193,8 @@ async function replanChunk(days: string[]): Promise<string[]> {
   const dayStart = parseClock(settings.clean_day_start, 9 * 60);
   const dayEnd = parseClock(settings.clean_day_end, 17 * 60);
   const rows: PlanRow[] = [];
+  // Notion shows the team's name, so a renamed team counts as a change to each of its cleans.
+  const teamNames = new Map<string, string | null>();
 
   for (const day of days) {
     const deps = departures.filter((d) => d.departure_date === day && props.has(d.property_id));
@@ -216,6 +246,7 @@ async function replanChunk(days: string[]): Promise<string[]> {
       );
       route.stops.forEach((s, i) => {
         const prevName = i === 0 ? (located(team) ? `${team.name}'s start` : null) : info.get(route.stops[i - 1]!.jobId)!.property.name;
+        teamNames.set(s.jobId, team.name);
         rows.push({
           booking_id: s.jobId,
           day,
@@ -236,6 +267,7 @@ async function replanChunk(days: string[]): Promise<string[]> {
     });
     for (const id of plan.unassigned) {
       const { job } = info.get(id)!;
+      teamNames.set(id, null);
       rows.push({
         booking_id: id,
         day,
@@ -255,14 +287,16 @@ async function replanChunk(days: string[]): Promise<string[]> {
     }
   }
 
-  // Save only what changed.
+  // Save only what changed, marked as waiting for Notion until it has been sent there.
   const now = new Date().toISOString();
-  const upserts: Array<PlanRow & { planned_at: string }> = [];
+  const upserts: Array<PlanRow & { planned_at: string; notion_pending: boolean }> = [];
   for (const row of rows) {
     const { signature: _ignored, ...fields } = row;
-    const signature = JSON.stringify(Object.values(fields));
+    const signature = JSON.stringify([...Object.values(fields), teamNames.get(row.booking_id) ?? null]);
     const before = existing.get(row.booking_id);
-    if (!before || before.signature !== signature || before.day !== row.day) upserts.push({ ...row, signature, planned_at: now });
+    if (!before || before.signature !== signature || before.day !== row.day) {
+      upserts.push({ ...row, signature, planned_at: now, notion_pending: true });
+    }
   }
   const planned = new Set(rows.map((r) => r.booking_id));
   const stale = dayJobs.filter((j) => !planned.has(j.booking_id)).map((j) => j.booking_id);
