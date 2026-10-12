@@ -34,13 +34,22 @@ function officeHours(): string {
     .join("; ");
 }
 
+/** The start of a message for the inbox preview line, cut at a word ("… would like help…"), not mid-word. */
+export function messagePreview(message: string, max = 90): string {
+  const text = message.replace(/\s+/g, " ").trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max + 1);
+  const atWord = cut.lastIndexOf(" ");
+  return `${(atWord > max * 0.6 ? cut.slice(0, atWord) : text.slice(0, max)).replace(/[\s,.;:–-]+$/, "")}…`;
+}
+
 /** To the team. Replies go straight to the person who sent it. */
 export function enquiryTeamEmail(opts: { baseUrl: string; enquiry: Enquiry }): RenderedEmail {
   const d = opts.enquiry;
   const email = renderEmail({
     eyebrow: "Website enquiry",
     title: `New enquiry from ${d.name}`,
-    preheader: d.message.slice(0, 90),
+    preheader: messagePreview(d.message),
     baseUrl: opts.baseUrl,
     blocks: [
       paragraph(`${d.name} sent a message through the contact form on the website. Reply to this email to answer them directly.`),
