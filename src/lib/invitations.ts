@@ -2,10 +2,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createToken, hashToken } from "@/lib/tokens";
 import { getBaseUrl } from "@/lib/env";
 import { sendEmail, type EmailResult } from "@/lib/email/send";
-import { button, paragraph, renderEmail } from "@/lib/email/templates";
+import { adminInviteEmail, customerInviteEmail } from "@/lib/email/account-emails";
 import { logActivity } from "@/lib/activity";
 import { getSettings } from "@/lib/settings";
-import { site } from "@/lib/site";
 import type { Customer } from "@/lib/types";
 
 const INVITE_DAYS = 14;
@@ -74,26 +73,10 @@ export async function sendCustomerInvite(customer: Customer, actor: { id: string
   });
   const base = await getBaseUrl();
   const settings = await getSettings().catch(() => null);
-  const firstName = customer.full_name.split(" ")[0] ?? customer.full_name;
-  const email = renderEmail({
-    title: "Your owner account is ready",
-    preheader: "Set a password to start sending us bookings online.",
-    baseUrl: base,
-    blocks: [
-      paragraph(`Hello ${firstName},`),
-      paragraph(
-        `We've set up an online account for you with ${site.name}. Once you've chosen a password you can send us your bookings, check upcoming changeovers and see your invoices, all in one place.`,
-      ),
-      button("Set up my account", url),
-      paragraph(`This link works for ${INVITE_DAYS} days. If it has expired, go to ${base}/register and we'll send a new one.`),
-      paragraph("If you weren't expecting this email, you can ignore it."),
-    ],
-  });
   const result = await sendEmail({
     to: customer.email,
-    subject: `Set up your ${site.name} account`,
     replyTo: settings?.email ?? undefined,
-    ...email,
+    ...customerInviteEmail({ baseUrl: base, fullName: customer.full_name, url, validDays: INVITE_DAYS }),
   });
   const admin = createAdminClient();
   if (result.ok) {
@@ -126,22 +109,17 @@ export async function sendAdminInvite(opts: {
     createdBy: opts.actor.id,
   });
   const base = await getBaseUrl();
-  const email = renderEmail({
-    title: opts.setup ? "Finish setting up your admin account" : "You've been added as an administrator",
-    preheader: "Choose a password to get into the admin area.",
-    baseUrl: base,
-    blocks: [
-      paragraph(`Hello ${opts.fullName.split(" ")[0] ?? opts.fullName},`),
-      paragraph(
-        opts.setup
-          ? `Use the button below to choose your password and open the ${site.name} admin area.`
-          : `${opts.actor.name} has given you access to the ${site.name} admin area, where you can manage customers, bookings and invoices.`,
-      ),
-      button("Choose my password", url),
-      paragraph(`This link works for ${INVITE_DAYS} days and can only be used once.`),
-    ],
+  const result = await sendEmail({
+    to: opts.email,
+    ...adminInviteEmail({
+      baseUrl: base,
+      fullName: opts.fullName,
+      url,
+      validDays: INVITE_DAYS,
+      setup: Boolean(opts.setup),
+      invitedBy: opts.actor.name,
+    }),
   });
-  const result = await sendEmail({ to: opts.email, subject: `Your ${site.name} admin login`, ...email });
   await logActivity({
     kind: result.ok ? "admin.invited" : "admin.invite_failed",
     message: result.ok

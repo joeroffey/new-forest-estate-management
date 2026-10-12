@@ -293,24 +293,9 @@ async function customerRecipients(customer: Customer): Promise<{ to: string[]; c
   return { to: [customer.email], cc };
 }
 
-const COPY: Record<SyncKind, { customerTitle: (n: number) => string; customerIntro: (p: string, n: number) => string; adminTitle: string }> = {
-  created: {
-    customerTitle: (n) => (n > 1 ? `${n} bookings received` : "Booking received"),
-    customerIntro: (p, n) =>
-      `Thank you. We've received ${n > 1 ? `${n} bookings` : "your booking"} for ${p} and the team has been notified. Here are the details for your records.`,
-    adminTitle: "New booking",
-  },
-  updated: {
-    customerTitle: () => "Booking updated",
-    customerIntro: (p) => `Your booking for ${p} has been updated and the team has been told about the change.`,
-    adminTitle: "Booking changed",
-  },
-  cancelled: {
-    customerTitle: () => "Booking cancelled",
-    customerIntro: (p) => `Your booking for ${p} has been cancelled and the team has been told. No changeover will be scheduled.`,
-    adminTitle: "Booking cancelled",
-  },
-};
+// The words and layout of these emails live in src/lib/email/booking-emails.ts. (Imported here, beside
+// the only code that uses it, so this file's import list stays as it was.)
+import { bookingCustomerEmail, bookingTeamEmail } from "@/lib/email/booking-emails";
 
 async function sendBookingEmails(
   kind: SyncKind,
@@ -322,65 +307,24 @@ async function sendBookingEmails(
 ): Promise<{ customer: ChannelStatus; admin: ChannelStatus; problems: string[] }> {
   const first = contexts[0]!;
   const problems: string[] = [];
-  const copy = COPY[kind];
-  const sorted = [...contexts].sort((a, b) => a.booking.arrival_date.localeCompare(b.booking.arrival_date));
 
   // Customer confirmation
-  const customerBlocks: EmailBlock[] = [paragraph(`Hello ${first.customer.full_name.split(" ")[0]},`), paragraph(copy.customerIntro(first.property.name, contexts.length))];
-  sorted.forEach((ctx, i) => {
-    if (sorted.length > 1) customerBlocks.push(heading(`Stay ${i + 1}`));
-    customerBlocks.push(detailsTable(stayDetailRows(ctx, { forAdmin: false })));
-  });
-  customerBlocks.push(button("View your bookings", `${baseUrl}/portal/bookings`));
-  customerBlocks.push(paragraph("Need to change something? You can edit or cancel a booking from your account at any time."));
-  const customerEmail = renderEmail({
-    preheader: `${copy.customerTitle(contexts.length)} for ${first.property.name}`,
-    title: copy.customerTitle(contexts.length),
-    blocks: customerBlocks,
-    baseUrl,
-  });
   const recipients = await customerRecipients(first.customer);
   const customerResult = await sendEmail({
     to: recipients.to,
     cc: recipients.cc,
-    subject: `${copy.customerTitle(contexts.length)}: ${first.property.name}`,
     replyTo: settings.email ?? undefined,
-    ...customerEmail,
+    ...bookingCustomerEmail(kind, contexts, { baseUrl, changes }),
   });
   if (!customerResult.ok) problems.push(`Customer email: ${customerResult.error}`);
 
   // Team notification (skipped when an admin made the change themselves)
   let adminStatus: ChannelStatus = "off";
   if (!actor.isAdmin && settings.notify_emails.length > 0) {
-    const adminBlocks: EmailBlock[] = [
-      paragraph(
-        `${first.customer.full_name}${first.customer.company_name ? ` (${first.customer.company_name})` : ""} ${
-          kind === "created" ? `added ${contexts.length > 1 ? `${contexts.length} bookings` : "a booking"}` : kind === "updated" ? "changed a booking" : "cancelled a booking"
-        } for ${first.property.name}.`,
-      ),
-    ];
-    if (contexts.some((c) => c.lateChange) && kind !== "created") {
-      adminBlocks.push(paragraph("This is a late change: the changeover is within the next couple of days."));
-    }
-    if (kind === "updated" && changes?.length) adminBlocks.push(paragraph(`What changed: ${changes.join(", ")}.`));
-    sorted.forEach((ctx, i) => {
-      if (sorted.length > 1) adminBlocks.push(heading(`Stay ${i + 1}`));
-      adminBlocks.push(detailsTable(stayDetailRows(ctx, { forAdmin: true })));
-    });
-    adminBlocks.push(
-      button(sorted.length > 1 ? "Open the calendar" : "Open the booking", sorted.length > 1 ? `${baseUrl}/admin/calendar` : `${baseUrl}/admin/bookings/${sorted[0]!.booking.id}`),
-    );
-    const adminEmail = renderEmail({
-      preheader: `${copy.adminTitle}: ${first.property.name}`,
-      title: `${copy.adminTitle}: ${first.property.name}`,
-      blocks: adminBlocks,
-      baseUrl,
-    });
     const adminResult = await sendEmail({
       to: settings.notify_emails,
-      subject: `${copy.adminTitle}: ${first.property.name} (${first.customer.full_name})`,
       replyTo: first.customer.email,
-      ...adminEmail,
+      ...bookingTeamEmail(kind, contexts, { baseUrl, changes, lateChangeHours: settings.late_change_hours }),
     });
     adminStatus = adminResult.ok ? "sent" : "failed";
     if (!adminResult.ok) problems.push(`Team email: ${adminResult.error}`);

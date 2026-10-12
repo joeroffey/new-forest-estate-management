@@ -8,11 +8,11 @@ import { getSettings, bankDetailsComplete } from "@/lib/settings";
 import { getBaseUrl } from "@/lib/env";
 import { logActivity } from "@/lib/activity";
 import { friendlyDbError } from "@/lib/errors";
-import { formatDateRange, formatDateShort, formatGuests, formatMoney, isValidISODate, plural, todayISO } from "@/lib/format";
+import { formatDateRange, formatGuests, isValidISODate, plural, todayISO } from "@/lib/format";
 import { loadInvoice } from "@/lib/invoices/load";
 import { renderInvoicePdf } from "@/lib/invoices/pdf";
 import { sendEmail } from "@/lib/email/send";
-import { button, detailsTable, heading, paragraph, renderEmail, type EmailBlock } from "@/lib/email/templates";
+import { invoiceEmail, paymentReceivedEmail } from "@/lib/email/invoice-emails";
 import type { ActionState, Booking, CustomerContact, Invoice, InvoiceItem } from "@/lib/types";
 
 const isoDate = z.string().refine(isValidISODate, "Choose a date");
@@ -129,54 +129,26 @@ async function deliverInvoice(
     .eq("receives_invoices", true);
   const cc = ((contactData ?? []) as unknown as Pick<CustomerContact, "email">[]).map((c) => c.email ?? "").filter(Boolean);
 
-  const firstName = customer.full_name.split(" ")[0] ?? customer.full_name;
-  const overdue = invoice.due_date < todayISO();
-  const blocks: EmailBlock[] = [paragraph(`Hello ${firstName},`)];
-  if (kind === "invoice") {
-    blocks.push(
-      paragraph(
-        `Please find attached invoice ${invoice.number}${invoice.period_label ? ` for ${invoice.period_label}` : ""}. The total is ${formatMoney(invoice.total)}, due by ${formatDateShort(invoice.due_date)}.`,
-      ),
-    );
-  } else {
-    blocks.push(
-      paragraph(
-        overdue
-          ? `This is a friendly reminder that invoice ${invoice.number} for ${formatMoney(invoice.total)} was due on ${formatDateShort(invoice.due_date)} and is still showing as unpaid.`
-          : `This is a friendly reminder that invoice ${invoice.number} for ${formatMoney(invoice.total)} is due on ${formatDateShort(invoice.due_date)}.`,
-      ),
-      paragraph("If you've already paid, thank you, and please ignore this email."),
-    );
-  }
-  blocks.push(
-    detailsTable([
-      ["Invoice", invoice.number],
-      ["Period", invoice.period_label],
-      ["Amount due", formatMoney(invoice.total)],
-      ["Due date", formatDateShort(invoice.due_date)],
-    ]),
-  );
-  if (bankDetailsComplete(settings)) {
-    blocks.push(heading("How to pay"));
-    blocks.push(
-      detailsTable([
-        ["Account name", settings.bank_account_name],
-        ["Sort code", settings.bank_sort_code],
-        ["Account number", settings.bank_account_number],
-        ["Bank", settings.bank_name],
-        ["Reference", invoice.number],
-      ]),
-    );
-  }
-  if (customer.user_id) blocks.push(button("View invoice online", `${base}/portal/invoices/${invoice.id}`));
-  blocks.push(paragraph("Any questions, just reply to this email."));
-
-  const title = kind === "invoice" ? `Invoice ${invoice.number}` : `Payment reminder: ${invoice.number}`;
-  const email = renderEmail({ title, preheader: `${formatMoney(invoice.total)} due ${formatDateShort(invoice.due_date)}`, baseUrl: base, blocks });
+  const email = invoiceEmail({
+    kind,
+    baseUrl: base,
+    businessName: settings.business_name,
+    fullName: customer.full_name,
+    invoice,
+    overdue: invoice.due_date < todayISO(),
+    bank: bankDetailsComplete(settings)
+      ? {
+          accountName: settings.bank_account_name,
+          sortCode: settings.bank_sort_code,
+          accountNumber: settings.bank_account_number,
+          bankName: settings.bank_name,
+        }
+      : null,
+    hasAccount: Boolean(customer.user_id),
+  });
   const result = await sendEmail({
     to: customer.email,
     cc,
-    subject: kind === "invoice" ? `Invoice ${invoice.number} from ${settings.business_name}` : `Payment reminder: invoice ${invoice.number}`,
     replyTo: settings.email ?? undefined,
     attachments: [{ filename: `Invoice-${invoice.number}.pdf`, content: Buffer.from(pdf).toString("base64") }],
     ...email,
@@ -269,21 +241,18 @@ export async function markInvoicePaid(_prev: ActionState, formData: FormData): P
   if (formData.get("send_receipt") === "on") {
     const settings = await getSettings();
     const base = await getBaseUrl();
-    const email = renderEmail({
-      title: "Payment received",
-      preheader: `Thank you for paying ${bundle.invoice.number}`,
-      baseUrl: base,
-      blocks: [
-        paragraph(`Hello ${bundle.customer.full_name.split(" ")[0]},`),
-        paragraph(`Thank you, we've received your payment of ${formatMoney(bundle.invoice.total)} for invoice ${bundle.invoice.number}.`),
-        ...(bundle.customer.user_id ? [button("View your invoices", `${base}/portal/invoices`)] : []),
-      ],
-    });
     const r = await sendEmail({
       to: bundle.customer.email,
-      subject: `Payment received for ${bundle.invoice.number}`,
       replyTo: settings.email ?? undefined,
-      ...email,
+      ...paymentReceivedEmail({
+        baseUrl: base,
+        fullName: bundle.customer.full_name,
+        invoiceNumber: bundle.invoice.number,
+        amount: bundle.invoice.total,
+        paidAt: fields.paid_at,
+        method: fields.payment_method,
+        hasAccount: Boolean(bundle.customer.user_id),
+      }),
     });
     message = r.ok ? `${message}. Receipt emailed to ${bundle.customer.email}` : `${message}, but the receipt email didn't send`;
   }

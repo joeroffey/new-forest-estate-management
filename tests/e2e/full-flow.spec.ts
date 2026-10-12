@@ -647,5 +647,51 @@ test.describe.serial("New Forest Estate Management", () => {
     await expect(page.getByText("Message sent")).toBeVisible();
     const mail = await waitForEmail("team@example.com", /Website enquiry: Carol Prospect/);
     expect(mail.text).toContain("cottage in Burley");
+    // The person who sent it gets a short acknowledgement with a copy of their message.
+    const ack = await waitForEmail("carol@example.com", /Thanks for getting in touch/);
+    expect(ack.text).toContain("cottage in Burley");
+  });
+
+  test("every email is saved for review", async ({ browser }) => {
+    test.setTimeout(240_000);
+    const dir = "ci-artifacts/emails";
+    const shots = `${SHOTS}/emails`;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(shots, { recursive: true });
+    const sent = await emails();
+    const desktop = await browser.newContext({ viewport: { width: 640, height: 900 } });
+    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const index: Array<{ file: string; subject: string; to: string[]; cc?: string[] }> = [];
+    try {
+      for (const [i, mail] of sent.entries()) {
+        if (!mail?.html) continue;
+        const slug =
+          String(mail.subject ?? "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 60) || "email";
+        const name = `${String(i + 1).padStart(2, "0")}-${slug}`;
+        fs.writeFileSync(`${dir}/${name}.html`, mail.html);
+        if (mail.text) fs.writeFileSync(`${dir}/${name}.txt`, mail.text);
+        index.push({ file: `${name}.html`, subject: mail.subject, to: mail.to, cc: mail.cc });
+        for (const [ctx, label] of [
+          [desktop, "desktop"],
+          [mobile, "mobile"],
+        ] as const) {
+          const page = await ctx.newPage();
+          await page.setContent(mail.html, { waitUntil: "domcontentloaded" });
+          // Let the logo (and web fonts, where reachable) load, but never wait long for them.
+          await page.waitForLoadState("load", { timeout: 5_000 }).catch(() => undefined);
+          await page.screenshot({ path: `${shots}/${name}-${label}.png`, fullPage: true });
+          await page.close();
+        }
+      }
+      fs.writeFileSync(`${dir}/index.json`, JSON.stringify(index, null, 2) + "\n");
+    } finally {
+      await desktop.close();
+      await mobile.close();
+    }
+    console.log(`Saved ${index.length} emails for review in ${dir} and ${shots}`);
   });
 });

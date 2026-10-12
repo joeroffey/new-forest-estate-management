@@ -9,8 +9,7 @@ import { hasAnyAdmin, safeNextPath } from "@/lib/auth";
 import { findValidInvitation, markInvitationAccepted, sendAdminInvite, sendCustomerInvite } from "@/lib/invitations";
 import { logActivity } from "@/lib/activity";
 import { sendEmail } from "@/lib/email/send";
-import { button, paragraph, renderEmail } from "@/lib/email/templates";
-import { site } from "@/lib/site";
+import { existingAccountEmail, passwordResetEmail } from "@/lib/email/account-emails";
 import type { ActionState, Customer, Profile } from "@/lib/types";
 
 const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email address");
@@ -69,18 +68,7 @@ export async function requestAccountLink(_prev: ActionState, formData: FormData)
     if (customer.user_id) {
       // Already registered: send a friendly reminder instead of a new invitation.
       const base = await getBaseUrl();
-      const mail = renderEmail({
-        title: "You already have an account",
-        preheader: "Log in or reset your password.",
-        baseUrl: base,
-        blocks: [
-          paragraph(`Hello ${customer.full_name.split(" ")[0]},`),
-          paragraph(`Someone asked to set up an account for this email address, but you already have one with ${site.name}.`),
-          button("Log in", `${base}/login`),
-          paragraph(`Forgotten your password? Reset it here: ${base}/forgot-password`),
-        ],
-      });
-      await sendEmail({ to: customer.email, subject: `Your ${site.name} account`, ...mail });
+      await sendEmail({ to: customer.email, ...existingAccountEmail({ baseUrl: base, fullName: customer.full_name }) });
       return done;
     }
     await sendCustomerInvite(customer, { id: null, name: "The website (requested by the customer)" });
@@ -110,17 +98,7 @@ export async function requestPasswordReset(_prev: ActionState, formData: FormDat
     if (error || !data?.properties?.hashed_token) return done; // Unknown email: say nothing.
 
     const link = `${base}/auth/confirm?token_hash=${encodeURIComponent(data.properties.hashed_token)}&type=recovery&next=/reset-password`;
-    const mail = renderEmail({
-      title: "Reset your password",
-      preheader: "Use this link to choose a new password.",
-      baseUrl: base,
-      blocks: [
-        paragraph("We received a request to reset the password for your account."),
-        button("Choose a new password", link),
-        paragraph("This link works once and expires in one hour. If you didn't ask for this, you can ignore this email and your password won't change."),
-      ],
-    });
-    const result = await sendEmail({ to: email, subject: `Reset your ${site.name} password`, ...mail });
+    const result = await sendEmail({ to: email, ...passwordResetEmail({ baseUrl: base, url: link }) });
     if (!result.ok) return { error: "We couldn't send the email just now. Please try again in a few minutes." };
   } catch (err) {
     console.error("[forgot-password] failed", err);
