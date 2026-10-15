@@ -15,7 +15,8 @@ export const NAV = [
 export function SiteHeader() {
   return (
     <header className="relative z-20">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8">
+      {/* A fixed height on phones (5.25rem) so the home page hero can fill exactly the rest of the screen. */}
+      <div className="mx-auto flex h-[5.25rem] max-w-7xl items-center justify-between gap-6 px-5 sm:h-auto sm:px-8 sm:py-5">
         <Link href="/" className="rounded-md" aria-label={`${site.name} home`}>
           <Logo />
         </Link>

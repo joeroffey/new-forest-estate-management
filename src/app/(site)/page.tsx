@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <>
       {/* ------------------------------------------------------------- Hero */}
-      {/* On phones the hero fills the first screen (below the 84px header), with the drawing pinned
+      {/* On phones the hero fills the first screen (below the 5.25rem header), with the drawing pinned
           to the bottom so it's in view as it draws itself. svh = the screen with the browser bars showing. */}
       <section
         data-testid="hero"
