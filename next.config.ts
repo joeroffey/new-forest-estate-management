@@ -38,7 +38,11 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       {
         source: "/:path*",
-        missing: [{ type: "host", value: escapedHost }],
+        // (The old cleaning domain only ever redirects, so it's left out too.)
+        missing: [
+          { type: "host", value: escapedHost },
+          { type: "host", value: OLD_CLEANING_HOST },
+        ],
         headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
     ];
@@ -47,12 +51,13 @@ const nextConfig: NextConfig = {
     return [
       // New Forest Holiday Cleaning's old website (both www. and the bare domain, once the domain
       // points here). Every old page goes to its closest new page, so links, bookmarks and search
-      // rankings carry over. These come first, so they win over the rules below.
+      // rankings carry over. 301s, the classic "moved permanently" that every search tool expects.
+      // These come first, so they win over the rules below.
       ...OLD_CLEANING_SITE.map(([source, destination]) => ({
         source,
         has: [{ type: "host" as const, value: OLD_CLEANING_HOST }],
         destination: `${canonicalOrigin}${destination}`,
-        permanent: true,
+        statusCode: 301 as const,
       })),
       // Addresses from the old GoDaddy website, so existing links and search results still work.
       { source: "/contact-us", destination: "/contact", permanent: true },

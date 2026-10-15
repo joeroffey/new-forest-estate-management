@@ -15,9 +15,5 @@ export const ENQUIRY_OPTIONS: Array<{ key: string; label: string }> = [
 
 export const BEDROOM_OPTIONS = ["1 bedroom", "2 bedrooms", "3 bedrooms", "4 bedrooms", "5 or more bedrooms"];
 
-/** Holiday homes guests can ask about, by the key used in /contact?home=… */
-export const HOLIDAY_HOME_NAMES: Record<string, string> = {
-  "cherry-tree-cottage": "Cherry Tree Cottage",
-  "milford-on-sea-apartment": "the ground-floor apartment in Milford on Sea",
-  "barton-on-sea-apartment": "the first-floor apartment in Barton on Sea",
-};
+/** The option for guests asking about a stay (no bedrooms question for them). */
+export const HOLIDAY_HOME_ENQUIRY = "Staying in one of your holiday homes";

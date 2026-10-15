@@ -83,8 +83,9 @@ export default function HolidayHomesPage() {
 
       <GuestReviews
         reviews={GUEST_REVIEWS}
-        className="bg-mist"
-        intro="A few words from guests who have stayed in the homes we look after."
+        tone="mist"
+        title="What guests say"
+        intro="A few words from people who have stayed in the homes we look after."
       />
 
       {cleaning && management ? (

@@ -170,7 +170,7 @@ export const SERVICES: Service[] = [
       {
         heading: "A detailed checklist, every time",
         body: [
-          "We love to clean, and we treat every property as though it were our own, with respect and integrity. Every changeover follows the same detailed checklist, room by room, so the standard never depends on who is cleaning that day. A professional clean keeps your holiday home consistently clean and welcoming, and guests notice: it's the first thing they mention in their reviews.",
+          "We love to clean, and we treat every property as though it were our own, with respect and integrity. Every changeover follows the same detailed checklist, room by room, so the standard never depends on who is cleaning that day. A professional clean keeps your holiday home consistently clean and welcoming, and guests notice.",
           "A changeover usually includes:",
         ],
         list: [
@@ -178,7 +178,7 @@ export const SERVICES: Service[] = [
           "Bathrooms cleaned, with fresh towels put out",
           "Beds stripped and made up with freshly ironed linen",
           "Floors vacuumed and mopped throughout",
-          "Bins emptied and the rubbish taken away",
+          "Bins emptied",
           "Anything broken, missing or left behind reported to you",
         ],
       },
@@ -228,7 +228,7 @@ export const SERVICES: Service[] = [
     faqs: [
       {
         q: "What happened to New Forest Holiday Cleaning?",
-        a: `New Forest Holiday Cleaning has always been part of the New Forest Estate Management group, and it's now run under the New Forest Estate Management name. It's the same local team and the same phone number, ${site.phoneDisplay}, and the old website now brings you here. Owners also get an online account for booking changeovers and seeing their invoices.`,
+        a: `New Forest Holiday Cleaning, part of the New Forest Estate Management group, now runs under the New Forest Estate Management name. It's the same local team and the same phone number, ${site.phoneDisplay}. Owners also get an online account for booking changeovers and seeing their invoices.`,
       },
       {
         q: "What's included in a changeover clean?",
@@ -302,7 +302,7 @@ export const SERVICES: Service[] = [
           "Every property is different, so we agree a checklist with you before we start, working from the inventory if there is one. A typical end of tenancy clean covers:",
         ],
         list: [
-          "The kitchen: worktops, cupboards inside and out, the hob, oven and extractor, and the fridge and freezer",
+          "The kitchen: worktops, cupboards, the hob and appliances (tell us if you'd like the oven cleaned)",
           "Bathrooms: baths, showers, basins and toilets cleaned and descaled, with tiles and glass polished",
           "Every room: skirting boards, doors, handles, light switches and sockets wiped down",
           "Windows cleaned on the inside, with the sills and frames",
@@ -343,7 +343,7 @@ export const SERVICES: Service[] = [
       },
       {
         q: "Do I need to be there?",
-        a: "No. Many people leave us a key or arrange access through their letting agent. Just tell us how we'll get in.",
+        a: "Not usually. Just tell us how we'll get in, for example with a key from you or from the letting agent.",
       },
       {
         q: "How long does an end of tenancy clean take?",

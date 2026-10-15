@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { ActionForm, FormError, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
-import { BEDROOM_OPTIONS, ENQUIRY_OPTIONS, HOLIDAY_HOME_NAMES } from "@/content/enquiry-options";
+import { BEDROOM_OPTIONS, ENQUIRY_OPTIONS, HOLIDAY_HOME_ENQUIRY } from "@/content/enquiry-options";
+import { findHolidayHome } from "@/content/holiday-homes";
 import { sendEnquiry } from "./actions";
 
 const SERVICE_OPTIONS = ENQUIRY_OPTIONS.map((o) => ({ value: o.label, label: o.label }));
@@ -21,8 +22,8 @@ interface Preset {
 function presetFromUrl(): Preset | null {
   const params = new URLSearchParams(window.location.search);
   const service = ENQUIRY_OPTIONS.find((o) => o.key === params.get("service"))?.label ?? "";
-  const home = HOLIDAY_HOME_NAMES[params.get("home") ?? ""];
-  const message = home ? `I'd like to ask about staying at ${home}.\n\nDates:\nNumber of guests:\nDogs:` : "";
+  const home = findHolidayHome(params.get("home") ?? "")?.enquiryName;
+  const message = home ? `I'd like to ask about staying at ${home}.\n\nDates:\nNumber of guests:` : "";
   return service || message ? { service, message } : null;
 }
 
@@ -30,9 +31,12 @@ export function ContactForm() {
   const [sent, setSent] = useState(false);
   const [startedAt] = useState(() => Date.now());
   const [preset, setPreset] = useState<Preset | null>(null);
+  const [service, setService] = useState("");
 
   useEffect(() => {
-    setPreset(presetFromUrl());
+    const p = presetFromUrl();
+    setPreset(p);
+    if (p) setService(p.service);
   }, []);
 
   if (sent) {
@@ -78,9 +82,13 @@ export function ContactForm() {
           options={SERVICE_OPTIONS}
           placeholder="Choose one"
           defaultValue={preset?.service ?? ""}
+          onChange={(e) => setService(e.target.value)}
           optional
         />
-        <SelectField label="Bedrooms" name="bedrooms" options={BEDROOMS} placeholder="Choose" optional />
+        {/* The bedrooms question is for owners wanting a quote, not guests asking about a stay. */}
+        {service === HOLIDAY_HOME_ENQUIRY ? null : (
+          <SelectField label="Bedrooms" name="bedrooms" options={BEDROOMS} placeholder="Choose" optional />
+        )}
       </div>
       <TextAreaField
         key={`message-${presetKey}`}

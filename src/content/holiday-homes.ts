@@ -1,6 +1,8 @@
 export interface HolidayHome {
   slug: string;
   name: string;
+  /** How the enquiry message names it: "I'd like to ask about staying at …". */
+  enquiryName: string;
   /** Where it is, in a few words: "Near Beaulieu, New Forest". */
   place: string;
   /** Number of bedrooms, when known. */
@@ -14,13 +16,15 @@ export interface HolidayHome {
 }
 
 /**
- * Holiday homes guests can book with us, carried over from the New Forest Holiday Cleaning
- * website. Enquiries go through the contact form with the home already filled in.
+ * Holiday homes guests can ask about, carried over from the New Forest Holiday Cleaning website.
+ * Each one's "Ask about dates" button opens the contact form with the home already filled in
+ * (the form reads this list, so a new home here works there too).
  */
 export const HOLIDAY_HOMES: HolidayHome[] = [
   {
     slug: "cherry-tree-cottage",
     name: "Cherry Tree Cottage",
+    enquiryName: "Cherry Tree Cottage",
     place: "Near Beaulieu, New Forest",
     bedrooms: 4,
     description:
@@ -31,6 +35,7 @@ export const HOLIDAY_HOMES: HolidayHome[] = [
   {
     slug: "milford-on-sea-apartment",
     name: "Ground-floor apartment, Milford on Sea",
+    enquiryName: "the ground-floor apartment in Milford on Sea",
     place: "Near the beach, Milford on Sea",
     bedrooms: 2,
     description: "A stunning two-bedroom ground-floor apartment near the beach at Milford on Sea.",
@@ -40,6 +45,7 @@ export const HOLIDAY_HOMES: HolidayHome[] = [
   {
     slug: "barton-on-sea-apartment",
     name: "First-floor apartment, Barton on Sea",
+    enquiryName: "the first-floor apartment in Barton on Sea",
     place: "Near the cliff top, Barton on Sea",
     bedrooms: 2,
     description: "A beautiful two-bedroom first-floor apartment near the cliff top at Barton on Sea.",

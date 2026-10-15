@@ -16,7 +16,7 @@ export function GET() {
     `Opening hours: ${site.hours.map((h) => `${h.days} ${h.time}`).join("; ")}.`,
     `Areas covered: ${site.areas.join(", ")}.`,
     "Holiday let owners have an online account to book changeovers and view monthly invoices (paid by bank transfer).",
-    `Formerly also trading as ${site.formerNames.join(", ")} (newforestholidaycleaning.co.uk, which now redirects here).`,
+    `Also known as ${site.formerNames.join(", ")} (newforestholidaycleaning.co.uk), which now runs under the ${site.name} name.`,
     "",
     "## Services",
     "",

@@ -204,7 +204,7 @@ export const AREAS: Area[] = [
     h1: "Holiday let cleaning and management in Christchurch and Mudeford",
     intro: [
       "Christchurch sits where the rivers Avon and Stour meet and flow into Christchurch Harbour, with its Priory, its quays and its waterside walks. Mudeford, at the mouth of the harbour, is known for its quay, its fishing boats and the beach huts on Mudeford Sandbank.",
-      "Christchurch and Mudeford have always been part of our patch, first as New Forest Holiday Cleaning and now as New Forest Estate Management. Our office in Barton on Sea is a short drive along the coast.",
+      "Christchurch and Mudeford are part of our patch, as they were for New Forest Holiday Cleaning, which now runs under the New Forest Estate Management name. Our office in Barton on Sea is a short drive along the coast.",
     ],
     sections: [
       {
@@ -238,7 +238,7 @@ export const AREAS: Area[] = [
     faqs: [
       {
         q: "Do you clean holiday lets in Mudeford?",
-        a: "Yes. Mudeford and Christchurch have always been part of our patch, along with Highcliffe, Bournemouth and the New Forest coast.",
+        a: "Yes. Mudeford and Christchurch are part of our patch, along with Highcliffe, Bournemouth and the New Forest coast.",
       },
       {
         q: "Can you do same-day changeovers in the summer holidays?",
@@ -250,7 +250,7 @@ export const AREAS: Area[] = [
       },
       {
         q: "Is Christchurch in the New Forest?",
-        a: "Christchurch is in Dorset, just west of the New Forest National Park, so guests get the harbour and the beaches with the forest a short drive away.",
+        a: "Christchurch is in Dorset, just south-west of the New Forest National Park, so guests get the harbour and the beaches with the forest a short drive away.",
       },
     ],
   },

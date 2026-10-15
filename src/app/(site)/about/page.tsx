@@ -37,10 +37,9 @@ export default function AboutPage() {
               now send us bookings online and find every invoice in one place.
             </p>
             <p>
-              Our cleaning business, New Forest Holiday Cleaning, has always been part of the New Forest Estate
-              Management group. It now runs under the New Forest Estate Management name, so changeovers, laundry, deep
-              cleans and end of tenancy cleans come from the same team as our management services, on the same phone
-              number.
+              Our cleaning business, New Forest Holiday Cleaning, part of the New Forest Estate Management group, now
+              runs under the New Forest Estate Management name. Changeovers, laundry, deep cleans and end of tenancy
+              cleans are booked with the same team as our management services, on the same phone number.
             </p>
             <p>
               We work from our office at {site.address.line1} in {site.address.town}, a short drive from the

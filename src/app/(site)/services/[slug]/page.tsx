@@ -105,7 +105,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       </div>
 
       {service.reviews ? (
-        <GuestReviews reviews={reviewsByName(service.reviews)} continued intro="What guests have said about the homes we clean and look after." />
+        <GuestReviews reviews={reviewsByName(service.reviews)} continued intro="Kind words about the homes we clean and look after." />
       ) : null}
 
       <section aria-labelledby="faq-title" className="bg-mist">

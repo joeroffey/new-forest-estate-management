@@ -172,7 +172,7 @@ test.describe.serial("New Forest Estate Management", () => {
         ["/robots.txt", "/services/holiday-let-cleaning"],
       ]) {
         const res = await getWithHost(from, host);
-        expect(res.status, `${host}${from}`).toBe(308);
+        expect(res.status, `${host}${from}`).toBe(301);
         expect(res.location, `${host}${from}`).toBe(`http://localhost:3000${to}`);
       }
     }
@@ -712,21 +712,32 @@ test.describe.serial("New Forest Estate Management", () => {
     await expect(page).toHaveURL(/\/contact\?service=holiday-homes&home=cherry-tree-cottage/);
     await expect(page.locator('select[name="service"]')).toHaveValue("Staying in one of your holiday homes");
     await expect(page.locator('textarea[name="message"]')).toHaveValue(/staying at Cherry Tree Cottage/);
+    // Guests aren't asked how many bedrooms (that's for cleaning quotes)
+    await expect(page.locator('select[name="bedrooms"]')).toHaveCount(0);
     await page.waitForTimeout(2700);
     await page.locator('input[name="name"]').fill("Dan Guest");
     await page.locator('input[name="email"]').fill("dan@example.com");
-    await page.locator('select[name="bedrooms"]').selectOption("4 bedrooms");
-    await page.locator('textarea[name="message"]').fill("I'd like to ask about staying at Cherry Tree Cottage. Dates: 3 to 10 July. Four adults and a dog.");
+    await page.locator('textarea[name="message"]').fill("I'd like to ask about staying at Cherry Tree Cottage. Dates: 3 to 10 July. Four adults.");
     await page.getByRole("button", { name: "Send message" }).click();
     await expect(page.getByText("Message sent")).toBeVisible();
     const mail = await waitForEmail("team@example.com", /Website enquiry: Dan Guest \(Staying in one of your holiday homes\)/);
     expect(mail.text).toContain("Cherry Tree Cottage");
-    expect(mail.text).toContain("Bedrooms: 4 bedrooms");
+    expect(mail.text).not.toContain("Bedrooms:");
 
-    // A cleaning service page's button chooses that service on the form
+    // A cleaning service page's button chooses that service on the form, and the quote includes the bedrooms
     await page.goto("/services/end-of-tenancy-cleaning");
     await page.getByRole("link", { name: "Ask for a quote" }).click();
     await expect(page.locator('select[name="service"]')).toHaveValue("End of tenancy or deep clean");
+    await page.waitForTimeout(2700);
+    await page.locator('input[name="name"]').fill("Lena Landlord");
+    await page.locator('input[name="email"]').fill("lena@example.com");
+    await page.locator('input[name="location"]').fill("Christchurch");
+    await page.locator('select[name="bedrooms"]').selectOption("3 bedrooms");
+    await page.locator('textarea[name="message"]').fill("My tenants move out on the 30th and the inspection is the day after.");
+    await page.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByText("Message sent")).toBeVisible();
+    const quote = await waitForEmail("team@example.com", /Website enquiry: Lena Landlord \(End of tenancy or deep clean\)/);
+    expect(quote.text).toContain("Bedrooms: 3 bedrooms");
   });
 
   test("every email is saved for review", async ({ browser }) => {

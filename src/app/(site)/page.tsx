@@ -9,7 +9,7 @@ import { SERVICES } from "@/content/services";
 import { areaForTown } from "@/content/areas";
 
 export const metadata = pageMetadata({
-  title: "Holiday Let Management & Cleaning in the New Forest",
+  title: "Holiday Let Cleaning & Property Management in the New Forest",
   description:
     "Holiday let changeovers and cleaning, end of tenancy cleans, and estate and commercial property management across the New Forest and the coast.",
   path: "/",
