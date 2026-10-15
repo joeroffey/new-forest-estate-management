@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "perf/**", "fix/**"]
+    branches: [main, "perf/**", "fix/**", "feat/**"]
   workflow_dispatch:
 
 permissions:
