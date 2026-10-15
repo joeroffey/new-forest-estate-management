@@ -1,0 +1,27 @@
+Booking cancelled: 9 Island Point
+=================================
+
+Alice Owner cancelled a booking for 9 Island Point.
+
+9 ISLAND POINT
+Booking B1010
+Status: Cancelled
+Arrival: Wed 28 Oct 2026
+Departure: Fri 30 Oct 2026, out by 10am
+Nights: 2
+Guests: 2 adults, no dogs
+Bed setup: Standard setup
+
+Open the booking:
+http://localhost:3000/admin/bookings/ea223e17-10b1-4b0a-9a01-f3513d765255
+
+Reply to this email to reach Alice, or call 07700 900123.
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+Sent to the team because an owner made a booking change on the website. Choose who gets these in the admin area under Settings → Notifications.

@@ -1,0 +1,39 @@
+New booking: 9 Island Point
+===========================
+
+Alice Owner added 2 bookings for 9 Island Point.
+
+9 ISLAND POINT
+Booking B1009  ·  Stay 1 of 2
+Status: Confirmed
+Same-day turnaround. Next guests arrive at 4pm on Wed 28 Oct, so the clean must be finished by then.
+Arrival: Sun 25 Oct 2026
+Departure: Wed 28 Oct 2026, out by 10am
+Nights: 3
+Guests: 3 adults, 1 dog
+Bed setup: Bedroom 2: split the double into two singles (put back to standard after this stay)
+Extras: Travel cot
+Notes: Birthday weekend, balloons in the lounge please
+
+9 ISLAND POINT
+Booking B1010  ·  Stay 2 of 2
+Status: Confirmed
+Arrival: Wed 28 Oct 2026
+Departure: Fri 30 Oct 2026, out by 10am
+Nights: 2
+Guests: 2 adults, no dogs
+Bed setup: Standard setup
+
+Open the calendar:
+http://localhost:3000/admin/calendar
+
+Reply to this email to reach Alice, or call 07700 900123.
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+Sent to the team because an owner made a booking change on the website. Choose who gets these in the admin area under Settings → Notifications.

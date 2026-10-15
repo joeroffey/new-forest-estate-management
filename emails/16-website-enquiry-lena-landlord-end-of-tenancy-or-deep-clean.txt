@@ -1,0 +1,23 @@
+New enquiry from Lena Landlord
+==============================
+
+Lena Landlord sent a message through the contact form on the website. Reply to this email to answer them directly.
+
+Name: Lena Landlord
+Email: lena@example.com
+Property location: Christchurch
+Bedrooms: 3 bedrooms
+Interested in: End of tenancy or deep clean
+
+Their message
+-------------
+> My tenants move out on the 30th and the inspection is the day after.
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+Sent to the team because someone used the contact form on the website. Choose who gets these in the admin area under Settings → Notifications.

@@ -1,0 +1,29 @@
+Your owner account is ready
+===========================
+
+Hello Alice,
+
+We've set up an online owner account for you with New Forest Estate Management. Once you've chosen a password, you can:
+
+- Send us your guest bookings, a whole season at a time if you like
+- Check upcoming changeovers and make changes
+- See and download every invoice
+
+Set up my account:
+http://localhost:3000/invite/tKYUdj805PXvabgWNEkFTqpCQFuSP5mVBoW0enpFVRU
+
+This link works for 14 days and can only be used once. If it runs out, ask for a new one here: http://localhost:3000/register
+
+If you weren't expecting this email, you can safely ignore it.
+
+Kind regards,
+The team at New Forest Estate Management
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+You're receiving this because an owner account was set up for this email address with New Forest Estate Management.

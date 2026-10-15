@@ -1,0 +1,29 @@
+Thanks for getting in touch
+===========================
+
+Hello Dan,
+
+Thank you for contacting New Forest Estate Management. Your message has reached our office in Barton on Sea, and one of the team will reply as soon as we can, usually within one working day.
+
+Here's a copy of what you sent us:
+
+> I'd like to ask about staying at Cherry Tree Cottage. Dates: 3 to 10 July. Four adults.
+
+Interested in: Staying in one of your holiday homes
+
+If it's urgent, call us on 07851 489297 (Monday to Friday, 9am – 5pm). To add anything to your message, just reply to this email.
+
+See how we can help:
+http://localhost:3000/services
+
+Kind regards,
+The team at New Forest Estate Management
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+You're receiving this because you sent us a message through our website.

@@ -1,0 +1,22 @@
+Your emails are working
+=======================
+
+Good news: if you can read this, the website can send emails.
+
+Booking confirmations, invoices, payment reminders and account emails all use this same design, with your logo, address and phone number.
+
+Sent to: team@example.com
+Sent: 15 Oct 2026, 21:03
+Website: http://localhost:3000
+
+Open the admin area:
+http://localhost:3000/admin
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+Sent because someone pressed “Send a test email” in the admin area under Settings → Notifications.

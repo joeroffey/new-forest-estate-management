@@ -1,0 +1,124 @@
+[
+  {
+    "file": "01-set-up-your-new-forest-estate-management-admin-login.html",
+    "subject": "Set up your New Forest Estate Management admin login",
+    "to": [
+      "admin@example.com"
+    ]
+  },
+  {
+    "file": "02-test-email-from-the-new-forest-estate-management-website.html",
+    "subject": "Test email from the New Forest Estate Management website",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "03-set-up-your-new-forest-estate-management-account.html",
+    "subject": "Set up your New Forest Estate Management account",
+    "to": [
+      "alice@example.com"
+    ]
+  },
+  {
+    "file": "04-2-bookings-received-9-island-point.html",
+    "subject": "2 bookings received: 9 Island Point",
+    "to": [
+      "alice@example.com"
+    ]
+  },
+  {
+    "file": "05-new-booking-9-island-point-alice-owner.html",
+    "subject": "New booking: 9 Island Point (Alice Owner)",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "06-booking-updated-9-island-point.html",
+    "subject": "Booking updated: 9 Island Point",
+    "to": [
+      "alice@example.com"
+    ]
+  },
+  {
+    "file": "07-booking-changed-9-island-point-alice-owner.html",
+    "subject": "Booking changed: 9 Island Point (Alice Owner)",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "08-booking-cancelled-9-island-point.html",
+    "subject": "Booking cancelled: 9 Island Point",
+    "to": [
+      "alice@example.com"
+    ]
+  },
+  {
+    "file": "09-booking-cancelled-9-island-point-alice-owner.html",
+    "subject": "Booking cancelled: 9 Island Point (Alice Owner)",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "10-invoice-nfem-1001-from-new-forest-estate-management.html",
+    "subject": "Invoice NFEM-1001 from New Forest Estate Management",
+    "to": [
+      "alice@example.com"
+    ],
+    "cc": [
+      "bob@example.com"
+    ]
+  },
+  {
+    "file": "11-reset-your-new-forest-estate-management-password.html",
+    "subject": "Reset your New Forest Estate Management password",
+    "to": [
+      "alice@example.com"
+    ]
+  },
+  {
+    "file": "12-website-enquiry-carol-prospect.html",
+    "subject": "Website enquiry: Carol Prospect",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "13-thanks-for-getting-in-touch-with-new-forest-estate-managemen.html",
+    "subject": "Thanks for getting in touch with New Forest Estate Management",
+    "to": [
+      "carol@example.com"
+    ]
+  },
+  {
+    "file": "14-website-enquiry-dan-guest-staying-in-one-of-your-holiday-hom.html",
+    "subject": "Website enquiry: Dan Guest (Staying in one of your holiday homes)",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "15-thanks-for-getting-in-touch-with-new-forest-estate-managemen.html",
+    "subject": "Thanks for getting in touch with New Forest Estate Management",
+    "to": [
+      "dan@example.com"
+    ]
+  },
+  {
+    "file": "16-website-enquiry-lena-landlord-end-of-tenancy-or-deep-clean.html",
+    "subject": "Website enquiry: Lena Landlord (End of tenancy or deep clean)",
+    "to": [
+      "team@example.com"
+    ]
+  },
+  {
+    "file": "17-thanks-for-getting-in-touch-with-new-forest-estate-managemen.html",
+    "subject": "Thanks for getting in touch with New Forest Estate Management",
+    "to": [
+      "lena@example.com"
+    ]
+  }
+]

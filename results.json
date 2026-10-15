@@ -1,0 +1,1249 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.3/x64/bin/node",
+      "/home/runner/work/new-forest-estate-management/new-forest-estate-management/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/playwright.config.ts",
+    "rootDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/joeroffey/new-forest-estate-management/commit/797341ab964409839f1829b16f7cf28d63e378e3",
+        "commitHash": "797341ab964409839f1829b16f7cf28d63e378e3",
+        "buildHref": "https://github.com/joeroffey/new-forest-estate-management/actions/runs/38798314527"
+      },
+      "gitCommit": {
+        "shortHash": "797341a",
+        "hash": "797341ab964409839f1829b16f7cf28d63e378e3",
+        "subject": "Give the phone header a fixed height so the hero fits the screen exactly",
+        "body": "Give the phone header a fixed height so the hero fits the screen exactly\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NvcBrSpatV4oiud11Vp7Rg\n",
+        "author": {
+          "name": "Joe Roffey",
+          "email": "josephh.roffey@gmail.com",
+          "time": 1792094054000
+        },
+        "committer": {
+          "name": "Joe Roffey",
+          "email": "josephh.roffey@gmail.com",
+          "time": 1792094054000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/ci-artifacts/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/joeroffey/new-forest-estate-management/commit/797341ab964409839f1829b16f7cf28d63e378e3",
+            "commitHash": "797341ab964409839f1829b16f7cf28d63e378e3",
+            "buildHref": "https://github.com/joeroffey/new-forest-estate-management/actions/runs/38798314527"
+          },
+          "gitCommit": {
+            "shortHash": "797341a",
+            "hash": "797341ab964409839f1829b16f7cf28d63e378e3",
+            "subject": "Give the phone header a fixed height so the hero fits the screen exactly",
+            "body": "Give the phone header a fixed height so the hero fits the screen exactly\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NvcBrSpatV4oiud11Vp7Rg\n",
+            "author": {
+              "name": "Joe Roffey",
+              "email": "josephh.roffey@gmail.com",
+              "time": 1792094054000
+            },
+            "committer": {
+              "name": "Joe Roffey",
+              "email": "josephh.roffey@gmail.com",
+              "time": 1792094054000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/ci-artifacts/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/joeroffey/new-forest-estate-management/commit/797341ab964409839f1829b16f7cf28d63e378e3",
+            "commitHash": "797341ab964409839f1829b16f7cf28d63e378e3",
+            "buildHref": "https://github.com/joeroffey/new-forest-estate-management/actions/runs/38798314527"
+          },
+          "gitCommit": {
+            "shortHash": "797341a",
+            "hash": "797341ab964409839f1829b16f7cf28d63e378e3",
+            "subject": "Give the phone header a fixed height so the hero fits the screen exactly",
+            "body": "Give the phone header a fixed height so the hero fits the screen exactly\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NvcBrSpatV4oiud11Vp7Rg\n",
+            "author": {
+              "name": "Joe Roffey",
+              "email": "josephh.roffey@gmail.com",
+              "time": 1792094054000
+            },
+            "committer": {
+              "name": "Joe Roffey",
+              "email": "josephh.roffey@gmail.com",
+              "time": 1792094054000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e",
+        "snapshotDir": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://localhost:3000",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "locale": "en-GB",
+          "timezoneId": "Europe/London",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1360,
+            "height": 900
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "ci-artifacts/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "full-flow.spec.ts",
+      "file": "full-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "New Forest Estate Management",
+          "file": "full-flow.spec.ts",
+          "line": 106,
+          "column": 15,
+          "specs": [
+            {
+              "title": "public website pages load",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23824,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:02:59.636Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-48ee5ac77231e7ab59a7",
+              "file": "full-flow.spec.ts",
+              "line": 126,
+              "column": 7
+            },
+            {
+              "title": "signed-out visitors are sent to the login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 847,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:24.012Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-d516ec179ef6c4de8334",
+              "file": "full-flow.spec.ts",
+              "line": 254,
+              "column": 7
+            },
+            {
+              "title": "first admin is set up through an emailed link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2068,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:24.874Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-7d5ea825bd3cff8dd4cb",
+              "file": "full-flow.spec.ts",
+              "line": 262,
+              "column": 7
+            },
+            {
+              "title": "admin fills in settings and connects WhatsApp and Notion",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3055,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:26.956Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-2fde5c4e744b8ef307b3",
+              "file": "full-flow.spec.ts",
+              "line": 293,
+              "column": 7
+            },
+            {
+              "title": "admin adds a customer with a contact and property, and invites them",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1434,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:30.032Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-d0bb12f9ae563f48e00b",
+              "file": "full-flow.spec.ts",
+              "line": 345,
+              "column": 7
+            },
+            {
+              "title": "owner accepts the invitation and lands in their account",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1332,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:31.481Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-bb20fe9201293c18e515",
+              "file": "full-flow.spec.ts",
+              "line": 387,
+              "column": 7
+            },
+            {
+              "title": "owner sends two stays at once, including a same-day turnaround",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1427,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "---- WhatsApp message ----\n🏡 *2 new bookings*: 9 Island Point\n📍 Lymington\n\n🧹 *Wed 28 Oct changeover*, guests out by 10am\n⚡ *Same-day turnaround*: next guests arrive 4pm\n📅 25 – 28 Oct 2026 (3 nights)\n👥 3 adults, 1 dog\n🛏️ Bedroom 2: split the double into two singles (put back to standard after this stay)\n➕ Travel cot\n📝 Birthday weekend, balloons in the lounge please\nRef B1009\n\n🧹 *Fri 30 Oct changeover*, guests out by 10am\nNo next booking yet\n⚡ Arrives on a changeover day: previous clean must be done by 4pm\n📅 28 – 30 Oct 2026 (2 nights)\n👥 2 adults, no dogs\n🛏️ Standard setup\nRef B1010\n\n🔑 Access: Key safe by the side gate, code 1234\n--------------------------\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:32.831Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-238c0a3692bfa8bad23c",
+              "file": "full-flow.spec.ts",
+              "line": 404,
+              "column": 7
+            },
+            {
+              "title": "overlapping dates are stopped before they're sent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 735,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:34.276Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-d0f7f9256b9aa73b6ef0",
+              "file": "full-flow.spec.ts",
+              "line": 478,
+              "column": 7
+            },
+            {
+              "title": "owner changes a booking and the cleaners are told what changed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1181,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:35.040Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-f26d610be4fdb135840a",
+              "file": "full-flow.spec.ts",
+              "line": 488,
+              "column": 7
+            },
+            {
+              "title": "owner cancels the second stay",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 560,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:36.238Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-9b06786dd19f48b468f1",
+              "file": "full-flow.spec.ts",
+              "line": 505,
+              "column": 7
+            },
+            {
+              "title": "owners can't open the admin area",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 266,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:36.825Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-21ad363921886186d408",
+              "file": "full-flow.spec.ts",
+              "line": 518,
+              "column": 7
+            },
+            {
+              "title": "admin sees the booking on the dashboard and calendar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2453,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:37.110Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-42c3eb0ae5117ad8c405",
+              "file": "full-flow.spec.ts",
+              "line": 525,
+              "column": 7
+            },
+            {
+              "title": "admin plans the day's cleaning across two teams",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3903,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:39.581Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-a2ba033aaaa45b2f2aca",
+              "file": "full-flow.spec.ts",
+              "line": 544,
+              "column": 7
+            },
+            {
+              "title": "admin invoices the month from the bookings list and sends it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1312,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:43.500Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-48f6a5c90ca18f349185",
+              "file": "full-flow.spec.ts",
+              "line": 621,
+              "column": 7
+            },
+            {
+              "title": "admin marks the invoice paid, then copies it for next month",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1399,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:44.839Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-56de5ae5232cfc7910e4",
+              "file": "full-flow.spec.ts",
+              "line": 652,
+              "column": 7
+            },
+            {
+              "title": "owner sees only sent invoices and can download the PDF",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 844,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:46.255Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-b0df4338c40a6e578234",
+              "file": "full-flow.spec.ts",
+              "line": 671,
+              "column": 7
+            },
+            {
+              "title": "owner resets a forgotten password",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2705,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:47.113Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-1aeccde5074c85e83c5d",
+              "file": "full-flow.spec.ts",
+              "line": 683,
+              "column": 7
+            },
+            {
+              "title": "website enquiries are emailed to the team",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2969,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:49.833Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-8fcecb42788be3e5bc9b",
+              "file": "full-flow.spec.ts",
+              "line": 716,
+              "column": 7
+            },
+            {
+              "title": "a holiday home enquiry arrives with the home and bedrooms filled in",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6130,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:52.821Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-45c2649e0f3649959775",
+              "file": "full-flow.spec.ts",
+              "line": 732,
+              "column": 7
+            },
+            {
+              "title": "every email is saved for review",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                        "line": 106,
+                        "column": 15
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6183,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Saved 17 emails for review in ci-artifacts/emails and ci-artifacts/screens/emails\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T20:03:58.977Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/new-forest-estate-management/new-forest-estate-management/tests/e2e/full-flow.spec.ts",
+                            "line": 106,
+                            "column": 15
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0366a69751fb3136692b-a516a87e9578a725f117",
+              "file": "full-flow.spec.ts",
+              "line": 767,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-15T20:02:59.046Z",
+    "duration": 66380.08499999999,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

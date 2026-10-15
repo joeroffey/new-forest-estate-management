@@ -1,0 +1,41 @@
+Your invoice for October 2026
+=============================
+
+Hello Alice,
+
+Please find attached invoice NFEM-1001 for October 2026. The total is £110.00, due by 29 Oct 2026.
+
+Amount due: £110.00
+Status: Awaiting payment
+Invoice: NFEM-1001
+Period: October 2026
+Due date: 29 Oct 2026
+
+How to pay
+----------
+Please pay by bank transfer to:
+
+Account name: New Forest Estate Management
+Sort code: 40-12-34
+Account number: 12345678
+Bank: Lloyds
+Reference: NFEM-1001
+
+Please use NFEM-1001 as the payment reference, so we can match your payment to this invoice.
+
+View invoice online:
+http://localhost:3000/portal/invoices/c4cde08f-316b-4a50-979a-abad01ac7981
+
+The invoice is attached to this email as a PDF. If you have any questions about it, just reply to this email.
+
+Kind regards,
+The team at New Forest Estate Management
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+You're receiving this because you're a customer of New Forest Estate Management.

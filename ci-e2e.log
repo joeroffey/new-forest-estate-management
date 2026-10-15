@@ -1,0 +1,49 @@
+
+Running 20 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/full-flow.spec.ts:126:7 › New Forest Estate Management › public website pages load (23.8s)
+  ✓   2 [chromium] › tests/e2e/full-flow.spec.ts:254:7 › New Forest Estate Management › signed-out visitors are sent to the login page (847ms)
+  ✓   3 [chromium] › tests/e2e/full-flow.spec.ts:262:7 › New Forest Estate Management › first admin is set up through an emailed link (2.1s)
+  ✓   4 [chromium] › tests/e2e/full-flow.spec.ts:293:7 › New Forest Estate Management › admin fills in settings and connects WhatsApp and Notion (3.1s)
+  ✓   5 [chromium] › tests/e2e/full-flow.spec.ts:345:7 › New Forest Estate Management › admin adds a customer with a contact and property, and invites them (1.4s)
+  ✓   6 [chromium] › tests/e2e/full-flow.spec.ts:387:7 › New Forest Estate Management › owner accepts the invitation and lands in their account (1.3s)
+---- WhatsApp message ----
+🏡 *2 new bookings*: 9 Island Point
+📍 Lymington
+
+🧹 *Wed 28 Oct changeover*, guests out by 10am
+⚡ *Same-day turnaround*: next guests arrive 4pm
+📅 25 – 28 Oct 2026 (3 nights)
+👥 3 adults, 1 dog
+🛏️ Bedroom 2: split the double into two singles (put back to standard after this stay)
+➕ Travel cot
+📝 Birthday weekend, balloons in the lounge please
+Ref B1009
+
+🧹 *Fri 30 Oct changeover*, guests out by 10am
+No next booking yet
+⚡ Arrives on a changeover day: previous clean must be done by 4pm
+📅 28 – 30 Oct 2026 (2 nights)
+👥 2 adults, no dogs
+🛏️ Standard setup
+Ref B1010
+
+🔑 Access: Key safe by the side gate, code 1234
+--------------------------
+  ✓   7 [chromium] › tests/e2e/full-flow.spec.ts:404:7 › New Forest Estate Management › owner sends two stays at once, including a same-day turnaround (1.4s)
+  ✓   8 [chromium] › tests/e2e/full-flow.spec.ts:478:7 › New Forest Estate Management › overlapping dates are stopped before they're sent (735ms)
+  ✓   9 [chromium] › tests/e2e/full-flow.spec.ts:488:7 › New Forest Estate Management › owner changes a booking and the cleaners are told what changed (1.2s)
+  ✓  10 [chromium] › tests/e2e/full-flow.spec.ts:505:7 › New Forest Estate Management › owner cancels the second stay (560ms)
+  ✓  11 [chromium] › tests/e2e/full-flow.spec.ts:518:7 › New Forest Estate Management › owners can't open the admin area (266ms)
+  ✓  12 [chromium] › tests/e2e/full-flow.spec.ts:525:7 › New Forest Estate Management › admin sees the booking on the dashboard and calendar (2.5s)
+  ✓  13 [chromium] › tests/e2e/full-flow.spec.ts:544:7 › New Forest Estate Management › admin plans the day's cleaning across two teams (3.9s)
+  ✓  14 [chromium] › tests/e2e/full-flow.spec.ts:621:7 › New Forest Estate Management › admin invoices the month from the bookings list and sends it (1.3s)
+  ✓  15 [chromium] › tests/e2e/full-flow.spec.ts:652:7 › New Forest Estate Management › admin marks the invoice paid, then copies it for next month (1.4s)
+  ✓  16 [chromium] › tests/e2e/full-flow.spec.ts:671:7 › New Forest Estate Management › owner sees only sent invoices and can download the PDF (844ms)
+  ✓  17 [chromium] › tests/e2e/full-flow.spec.ts:683:7 › New Forest Estate Management › owner resets a forgotten password (2.7s)
+  ✓  18 [chromium] › tests/e2e/full-flow.spec.ts:716:7 › New Forest Estate Management › website enquiries are emailed to the team (3.0s)
+  ✓  19 [chromium] › tests/e2e/full-flow.spec.ts:732:7 › New Forest Estate Management › a holiday home enquiry arrives with the home and bedrooms filled in (6.1s)
+Saved 17 emails for review in ci-artifacts/emails and ci-artifacts/screens/emails
+  ✓  20 [chromium] › tests/e2e/full-flow.spec.ts:767:7 › New Forest Estate Management › every email is saved for review (6.2s)
+
+  20 passed (1.1m)

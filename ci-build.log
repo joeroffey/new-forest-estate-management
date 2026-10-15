@@ -1,0 +1,98 @@
+
+> new-forest-estate-management@1.0.0 build
+> next build
+
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+   ▲ Next.js 15.5.27
+   - Experiments (use with caution):
+     · serverActions
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (113kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled successfully in 14.4s
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/29) ...
+   Generating static pages (7/29) 
+   Generating static pages (14/29) 
+   Generating static pages (21/29) 
+ ✓ Generating static pages (29/29)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                           Size  First Load JS
+┌ ○ /                                                198 B         106 kB
+├ ○ /_not-found                                      156 B         103 kB
+├ ○ /about                                           198 B         106 kB
+├ ƒ /admin                                         2.66 kB         118 kB
+├ ƒ /admin/bookings                                3.22 kB         119 kB
+├ ƒ /admin/bookings/[id]                           2.66 kB         118 kB
+├ ƒ /admin/bookings/[id]/edit                        199 B         147 kB
+├ ƒ /admin/bookings/new                              191 B         147 kB
+├ ƒ /admin/calendar                                3.53 kB         119 kB
+├ ƒ /admin/cleaning                                5.22 kB         121 kB
+├ ƒ /admin/customers                               3.22 kB         119 kB
+├ ƒ /admin/customers/[id]                          2.66 kB         118 kB
+├ ƒ /admin/customers/[id]/edit                       134 B         121 kB
+├ ƒ /admin/customers/[id]/properties/[propertyId]  1.53 kB         144 kB
+├ ƒ /admin/customers/[id]/properties/new             199 B         143 kB
+├ ƒ /admin/customers/new                             133 B         121 kB
+├ ƒ /admin/invoices                                3.22 kB         119 kB
+├ ƒ /admin/invoices/[id]                            4.9 kB         128 kB
+├ ƒ /admin/invoices/[id]/edit                        136 B         133 kB
+├ ƒ /admin/invoices/new                              136 B         133 kB
+├ ƒ /admin/settings                                7.92 kB         131 kB
+├ ƒ /api/bookings/export                             156 B         103 kB
+├ ƒ /api/cron/cleaning-plan                          156 B         103 kB
+├ ƒ /api/invoices/[id]/pdf                           156 B         103 kB
+├ ● /areas/[slug]                                    198 B         106 kB
+├   ├ /areas/lymington
+├   ├ /areas/milford-on-sea
+├   ├ /areas/new-milton-barton-on-sea
+├   └ [+2 more paths]
+├ ƒ /auth/confirm                                    156 B         103 kB
+├ ƒ /auth/signout                                    156 B         103 kB
+├ ○ /contact                                       5.13 kB         121 kB
+├ ○ /forgot-password                                 133 B         119 kB
+├ ○ /holiday-homes                                 5.38 kB         111 kB
+├ ○ /icon.svg                                          0 B            0 B
+├ ƒ /invite/[token]                                3.75 kB         119 kB
+├ ○ /llms.txt                                        156 B         103 kB
+├ ƒ /login                                         3.68 kB         119 kB
+├ ƒ /portal                                          198 B         106 kB
+├ ƒ /portal/account                                3.62 kB         119 kB
+├ ƒ /portal/bookings                                 198 B         106 kB
+├ ƒ /portal/bookings/[id]                          2.66 kB         118 kB
+├ ƒ /portal/bookings/[id]/edit                       199 B         147 kB
+├ ƒ /portal/bookings/new                             199 B         147 kB
+├ ƒ /portal/invoices                                 198 B         106 kB
+├ ƒ /portal/invoices/[id]                            198 B         106 kB
+├ ƒ /portal/properties                               198 B         106 kB
+├ ƒ /portal/properties/[id]                          199 B         143 kB
+├ ƒ /portal/properties/new                           199 B         143 kB
+├ ○ /privacy                                         156 B         103 kB
+├ ○ /register                                        133 B         119 kB
+├ ƒ /reset-password                                3.62 kB         119 kB
+├ ○ /robots.txt                                      156 B         103 kB
+├ ○ /services                                        198 B         106 kB
+├ ● /services/[slug]                                 198 B         106 kB
+├   ├ /services/holiday-rental-management
+├   ├ /services/holiday-let-cleaning
+├   ├ /services/end-of-tenancy-cleaning
+├   └ [+2 more paths]
+├ ƒ /setup                                         3.92 kB         119 kB
+└ ○ /sitemap.xml                                     156 B         103 kB
++ First Load JS shared by all                       103 kB
+  ├ chunks/1255-5cd2fe06309409a0.js                46.5 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js            54.2 kB
+  └ other shared chunks (total)                    1.93 kB
+
+
+ƒ Middleware                                       93.9 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,22 @@
+Finish setting up your admin login
+==================================
+
+Hello Joe,
+
+Use the button below to choose your password and open the New Forest Estate Management admin area. From there you can manage customers, bookings, the cleaning plan and invoices.
+
+Choose my password:
+http://localhost:3000/invite/jRkyj2kDrZhYrn0oEZfQRp6kiYa6HK_M4oHeRVvE6kY
+
+This link works for 14 days and can only be used once.
+
+If you didn't ask for this, you can ignore this email.
+
+-- 
+New Forest Estate Management
+38 Marine Drive East, Barton on Sea, Hampshire BH25 7DX
+Phone: 07851 489297
+http://localhost:3000/
+Office hours: Monday to Friday, 9am – 5pm
+
+You're receiving this because this email address was given admin access to the New Forest Estate Management website.
