@@ -8,9 +8,9 @@ import { SERVICES } from "@/content/services";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Property Management Services | New Forest Estate Management",
+  title: "Property Management & Cleaning Services in the New Forest",
   description:
-    "Holiday let management, property and estate management, and commercial property management across the New Forest and the Hampshire coast.",
+    "Holiday let management and cleaning, end of tenancy and deep cleans, estate management and commercial property management across the New Forest and coast.",
   path: "/services",
 });
 
@@ -24,8 +24,8 @@ export default function ServicesPage() {
           What we look after, and how
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">
-          Three services, one local team based in Barton on Sea. Choose the one that fits your property, or call us
-          and we&apos;ll talk it through.
+          Cleaning and management from one local team based in Barton on Sea. Choose the service that fits your
+          property, or call us and we&apos;ll talk it through.
         </p>
         <nav aria-label="Our services" className="mt-8 flex flex-wrap gap-2">
           {SERVICES.map((s) => (
@@ -71,7 +71,7 @@ export default function ServicesPage() {
                   </li>
                 ))}
               </ul>
-              <ButtonLink href="/contact" className="mt-8" variant="secondary">
+              <ButtonLink href={`/contact?service=${service.slug}`} className="mt-8" variant="secondary">
                 Ask about {service.short}
               </ButtonLink>
             </div>

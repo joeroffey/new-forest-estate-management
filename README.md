@@ -55,6 +55,8 @@ Then **Deployments → the latest one → ••• → Redeploy**. Until the do
 
 If GoDaddy won't let you edit the `@` record, disconnect the old GoDaddy Website Builder site from the domain first. The old site stops showing once DNS switches over (usually within an hour). Then verify the domain in Google Search Console, submit `https://www.newforestestatemanagement.co.uk/sitemap.xml`, and update the website link on the Google Business Profile.
 
+**Retiring newforestholidaycleaning.co.uk:** the website sends every page of the old New Forest Holiday Cleaning site to its closest page here (home, `/home` and `/services` → holiday let cleaning, `/holiday-properties` → holiday homes, `/about` and `/contact` → the same pages, anything else → holiday let cleaning), with permanent redirects so search rankings carry over. The rules are in `next.config.ts`. Switch the main domain over first (above), then point the old domain at Vercel with the same two records in its DNS, again leaving MX and other records alone. Keep renewing the old domain: if it lapses, the redirects stop and anyone can buy it.
+
 ### 4. Your admin login
 
 1. Visit `/setup` on the site (for example `https://www.newforestestatemanagement.co.uk/setup`).

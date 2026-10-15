@@ -9,9 +9,9 @@ import { SERVICES } from "@/content/services";
 import { areaForTown } from "@/content/areas";
 
 export const metadata = pageMetadata({
-  title: "Holiday Let & Property Management in the New Forest",
+  title: "Holiday Let Management & Cleaning in the New Forest",
   description:
-    "Holiday let changeovers, estate and commercial property management across the New Forest and Hampshire coast, from our office in Barton on Sea.",
+    "Holiday let changeovers and cleaning, end of tenancy cleans, and estate and commercial property management across the New Forest and the coast.",
   path: "/",
 });
 
@@ -48,11 +48,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
           <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:items-end">
             <h2 id="services-title" className="font-serif text-[clamp(2rem,3.6vw,3.1rem)] leading-[1.08] tracking-[-0.02em] text-forest-deep">
-              Three kinds of property, one local team
+              Cleaning and management, one local team
             </h2>
             <p className="max-w-xl text-[1.05rem] leading-relaxed text-ink-soft">
-              We started with a single holiday rental and grew from there. Whether you let a cottage to guests every
-              weekend or own buildings with long-term tenants, you deal with the same people who know the area.
+              We started with a single holiday rental and grew from there. Whether you need a reliable changeover team,
+              a deep clean at the end of a tenancy, or someone to look after an estate or a commercial building, you
+              deal with the same people who know the area.
             </p>
           </div>
 

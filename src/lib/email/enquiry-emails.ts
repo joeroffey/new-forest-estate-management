@@ -23,6 +23,8 @@ export interface Enquiry {
   phone: string;
   location: string;
   service: string;
+  /** "3 bedrooms", when given. Older callers may leave it out. */
+  bedrooms?: string;
   message: string;
 }
 
@@ -59,6 +61,7 @@ export function enquiryTeamEmail(opts: { baseUrl: string; enquiry: Enquiry }): R
           ["Email", d.email],
           ["Phone", d.phone],
           ["Property location", d.location],
+          ["Bedrooms", d.bedrooms ?? ""],
           ["Interested in", d.service],
         ],
       }),
@@ -79,6 +82,7 @@ export function enquiryAcknowledgementEmail(opts: { baseUrl: string; enquiry: En
   const extras: Array<[string, string]> = [
     ["Interested in", d.service],
     ["Property location", d.location],
+    ["Bedrooms", d.bedrooms ?? ""],
     ["Phone", d.phone],
   ];
   const blocks: EmailBlock[] = [

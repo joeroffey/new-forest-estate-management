@@ -20,8 +20,9 @@ export function SiteFooter() {
         <div>
           <Logo inverse />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-sage">
-            Holiday rental, estate and commercial property management from Barton on Sea.
+            Holiday let management and cleaning, estate and commercial property management from Barton on Sea.
           </p>
+          <p className="mt-3 max-w-xs text-xs leading-relaxed text-sage/80">Incorporating New Forest Holiday Cleaning.</p>
         </div>
         <div>
           <ColumnLabel>Contact</ColumnLabel>
@@ -80,11 +81,23 @@ export function SiteFooter() {
         <nav aria-label="Company">
           <ColumnLabel>Company</ColumnLabel>
           <ul className="mt-3 space-y-2 text-sm">
+            <li><Link href="/holiday-homes" className="hover:text-mist">Holiday homes</Link></li>
             <li><Link href="/about" className="hover:text-mist">About us</Link></li>
             <li><Link href="/contact" className="hover:text-mist">Contact</Link></li>
             <li><Link href="/login" className="hover:text-mist">Owner login</Link></li>
             <li><Link href="/privacy" className="hover:text-mist">Privacy</Link></li>
           </ul>
+          {site.social.length ? (
+            <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm" aria-label="Follow us">
+              {site.social.map((s) => (
+                <li key={s.href}>
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" className="text-mist underline-offset-4 hover:underline">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </nav>
       </div>
       <div className="border-t border-white/10">

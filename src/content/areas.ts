@@ -194,6 +194,67 @@ export const AREAS: Area[] = [
     ],
   },
   {
+    slug: "christchurch-mudeford",
+    href: "/areas/christchurch-mudeford",
+    name: "Christchurch and Mudeford",
+    towns: ["Christchurch", "Mudeford"],
+    metaTitle: "Holiday Let Cleaning & Management, Christchurch & Mudeford",
+    metaDescription:
+      "Holiday let cleaning, same-day changeovers, deep cleans and property management in Christchurch and Mudeford, from our office in nearby Barton on Sea.",
+    h1: "Holiday let cleaning and management in Christchurch and Mudeford",
+    intro: [
+      "Christchurch sits where the rivers Avon and Stour meet and flow into Christchurch Harbour, with its Priory, its quays and its waterside walks. Mudeford, at the mouth of the harbour, is known for its quay, its fishing boats and the beach huts on Mudeford Sandbank.",
+      "Christchurch and Mudeford have always been part of our patch, first as New Forest Holiday Cleaning and now as New Forest Estate Management. Our office in Barton on Sea is a short drive along the coast.",
+    ],
+    sections: [
+      {
+        heading: "Why guests choose Christchurch and Mudeford",
+        body: [
+          "Guests come for the water. Boat trips leave from the town quay, the ferry from Mudeford Quay crosses to the sandbank and Hengistbury Head, and Avon Beach and Friars Cliff are favourites with families. In town, the Priory, the ruins of the Norman castle and the riverside paths around the Quomps make for an easy day out.",
+          "The New Forest National Park begins a few miles to the north-east, so guests can spend one day by the sea and the next in the forest.",
+        ],
+      },
+      {
+        heading: "Getting there",
+        body: [
+          "Christchurch station is on the main line between London Waterloo and Weymouth, and Hinton Admiral station serves Highcliffe. Bournemouth Airport is just north of the town. By road, the A35 links Christchurch with Bournemouth to the west and Lyndhurst to the north-east, and the A337 runs east along the coast through Highcliffe to New Milton.",
+        ],
+      },
+      {
+        heading: "What that means for owners",
+        body: [
+          "Waterside holiday homes are busy from spring to autumn, with sailing weekends, family summers and plenty of dogs. Sand and salt get everywhere, and same-day turnarounds are common in the school holidays, so changeovers need to be quick and thorough.",
+        ],
+      },
+      {
+        heading: "How we help",
+        body: [
+          "We clean and change over holiday lets between every stay, make the beds with freshly ironed linen and can arrange welcome hampers for your guests. Owners add their bookings to their online account, our team is told straight away, and you receive one invoice a month.",
+          "We also do end of tenancy and deep cleans, and full management for owners who would like us to take care of everything.",
+        ],
+      },
+    ],
+    nearby: ["Highcliffe", "Bournemouth", "Barton on Sea", "New Milton"],
+    faqs: [
+      {
+        q: "Do you clean holiday lets in Mudeford?",
+        a: "Yes. Mudeford and Christchurch have always been part of our patch, along with Highcliffe, Bournemouth and the New Forest coast.",
+      },
+      {
+        q: "Can you do same-day changeovers in the summer holidays?",
+        a: "Yes. We plan each day around check-out and arrival times and put the cleans in the best order, so same-day turnarounds are finished before the next guests arrive.",
+      },
+      {
+        q: "Do you cover Bournemouth?",
+        a: "Yes. We clean and look after properties in Bournemouth as well as Christchurch, Mudeford and Highcliffe. Call us if you'd like to check your address.",
+      },
+      {
+        q: "Is Christchurch in the New Forest?",
+        a: "Christchurch is in Dorset, just west of the New Forest National Park, so guests get the harbour and the beaches with the forest a short drive away.",
+      },
+    ],
+  },
+  {
     slug: "brockenhurst",
     href: "/areas/brockenhurst",
     name: "Brockenhurst",

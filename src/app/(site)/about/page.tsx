@@ -11,7 +11,7 @@ import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "About Us | Local Property Managers in Barton on Sea",
   description:
-    "We began with a single holiday rental. Now, with over 10 years of experience, we manage holiday lets, estates and commercial property from Barton on Sea.",
+    "We began with a single holiday rental. With over 10 years of experience, we now clean and manage holiday lets, homes, estates and commercial property.",
   path: "/about",
 });
 
@@ -37,9 +37,15 @@ export default function AboutPage() {
               now send us bookings online and find every invoice in one place.
             </p>
             <p>
+              Our cleaning business, New Forest Holiday Cleaning, has always been part of the New Forest Estate
+              Management group. It now runs under the New Forest Estate Management name, so changeovers, laundry, deep
+              cleans and end of tenancy cleans come from the same team as our management services, on the same phone
+              number.
+            </p>
+            <p>
               We work from our office at {site.address.line1} in {site.address.town}, a short drive from the
               properties we look after, from Lymington and Milford on Sea to Brockenhurst and the villages of the
-              forest.
+              forest, and west along the coast to Christchurch, Mudeford and Bournemouth.
             </p>
           </div>
         </div>
@@ -71,7 +77,7 @@ export default function AboutPage() {
             ["Office", `${site.address.line1}, ${site.address.town}, ${site.address.county} ${site.address.postcode}`],
             ["Opening hours", site.hours.map((h) => `${h.days}: ${h.time}`).join(". ")],
             ["Services", SERVICES.map((sv) => sv.title).join(", ")],
-            ["Areas", `${site.areas.length} towns and villages across the New Forest and the Hampshire coast`],
+            ["Areas", `${site.areas.length} towns and villages across the New Forest and the coast, from Lymington to Bournemouth`],
             ["Phone", site.phoneDisplay],
           ].map(([label, value]) => (
             <div key={label} className="border-b border-line py-5">

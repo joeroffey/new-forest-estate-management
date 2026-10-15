@@ -7,6 +7,7 @@ import { MobileMenu } from "@/components/site/mobile-menu";
 
 export const NAV = [
   { href: "/services", label: "Services" },
+  { href: "/holiday-homes", label: "Holiday homes" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

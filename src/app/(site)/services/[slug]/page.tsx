@@ -11,6 +11,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { ContentSections } from "@/components/site/content-sections";
 import { ContactCta } from "@/components/site/contact-cta";
 import { FaqList } from "@/components/site/faq-list";
+import { GuestReviews } from "@/components/site/guest-reviews";
+import { reviewsByName } from "@/content/reviews";
 import { JsonLd } from "@/components/site/json-ld";
 import { ButtonLink } from "@/components/ui/button";
 import { Horizon } from "@/components/brand/landscape";
@@ -63,8 +65,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           ))}
         </div>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/contact" size="lg">
-            Talk to us about your property
+          <ButtonLink href={`/contact?service=${service.slug}`} size="lg">
+            {service.slug.includes("cleaning") ? "Ask for a quote" : "Talk to us about your property"}
           </ButtonLink>
           <ButtonLink href={site.phoneHref} size="lg" variant="secondary" icon={<Phone className="size-4" aria-hidden />}>
             {site.phoneDisplay}
@@ -88,7 +90,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                   </li>
                 ))}
               </ul>
-              <ButtonLink href="/contact" className="mt-6 w-full">
+              <ButtonLink href={`/contact?service=${service.slug}`} className="mt-6 w-full">
                 Ask about {service.short}
               </ButtonLink>
               <p className="mt-4 text-center text-sm text-ink-soft">
@@ -101,6 +103,10 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           </aside>
         </div>
       </div>
+
+      {service.reviews ? (
+        <GuestReviews reviews={reviewsByName(service.reviews)} continued intro="What guests have said about the homes we clean and look after." />
+      ) : null}
 
       <section aria-labelledby="faq-title" className="bg-mist">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:py-24">

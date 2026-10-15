@@ -16,6 +16,7 @@ const schema = z.object({
   phone: z.string().trim().max(40).optional().default(""),
   location: z.string().trim().max(120).optional().default(""),
   service: z.string().trim().max(80).optional().default(""),
+  bedrooms: z.string().trim().max(40).optional().default(""),
   message: z.string().trim().min(10, "Tell us a little more (at least 10 characters)").max(4000),
 });
 

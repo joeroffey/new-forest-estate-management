@@ -11,6 +11,21 @@ const securityHeaders = [
 // (the vercel.app address, preview links) are marked "noindex" so they never compete with it.
 const canonicalHost = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.newforestestatemanagement.co.uk").host;
 const escapedHost = canonicalHost.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const canonicalOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.newforestestatemanagement.co.uk").origin;
+
+/** newforestholidaycleaning.co.uk, with or without www. */
+const OLD_CLEANING_HOST = "(?:www\\.)?newforestholidaycleaning\\.co\\.uk";
+
+/** Old page → new page. Anything else on the old site goes to the cleaning page (the last rule). */
+const OLD_CLEANING_SITE: Array<[string, string]> = [
+  ["/", "/services/holiday-let-cleaning"],
+  ["/home", "/services/holiday-let-cleaning"],
+  ["/services", "/services/holiday-let-cleaning"],
+  ["/holiday-properties", "/holiday-homes"],
+  ["/about", "/about"],
+  ["/contact", "/contact"],
+  ["/:path*", "/services/holiday-let-cleaning"],
+];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -29,8 +44,17 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
-    // Addresses from the old GoDaddy website, so existing links and search results still work.
     return [
+      // New Forest Holiday Cleaning's old website (both www. and the bare domain, once the domain
+      // points here). Every old page goes to its closest new page, so links, bookmarks and search
+      // rankings carry over. These come first, so they win over the rules below.
+      ...OLD_CLEANING_SITE.map(([source, destination]) => ({
+        source,
+        has: [{ type: "host" as const, value: OLD_CLEANING_HOST }],
+        destination: `${canonicalOrigin}${destination}`,
+        permanent: true,
+      })),
+      // Addresses from the old GoDaddy website, so existing links and search results still work.
       { source: "/contact-us", destination: "/contact", permanent: true },
       { source: "/home", destination: "/", permanent: true },
       { source: "/about-us", destination: "/about", permanent: true },

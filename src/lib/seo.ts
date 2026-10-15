@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site } from "@/lib/site";
+import { site, townWithCounty } from "@/lib/site";
 
 /**
  * The one public address of the website. Every canonical link, the sitemap and the
@@ -49,6 +49,7 @@ export function businessJsonLd(services: Array<{ name: string; path: string; des
     "@type": "RealEstateAgent",
     "@id": BUSINESS_ID,
     name: site.name,
+    alternateName: [...site.formerNames],
     description: site.description,
     url: absoluteUrl("/"),
     logo: absoluteUrl("/brand/apple-touch-icon.png"),
@@ -72,11 +73,11 @@ export function businessJsonLd(services: Array<{ name: string; path: string; des
     ],
     areaServed: [
       { "@type": "AdministrativeArea", name: "New Forest" },
-      ...site.areas.map((name) => ({ "@type": "Place", name: `${name}, Hampshire` })),
+      ...site.areas.map((name) => ({ "@type": "Place", name: townWithCounty(name) })),
     ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Property management services",
+      name: "Property management and cleaning services",
       itemListElement: services.map((s) => ({
         "@type": "Offer",
         itemOffered: { "@type": "Service", name: s.name, description: s.description, url: absoluteUrl(s.path) },
@@ -132,6 +133,6 @@ export function serviceJsonLd({ name, description, path, serviceType, areas }: {
     serviceType,
     url: absoluteUrl(path),
     provider: { "@id": BUSINESS_ID },
-    areaServed: areas.map((name) => ({ "@type": "Place", name: `${name}, Hampshire` })),
+    areaServed: areas.map((name) => ({ "@type": "Place", name: townWithCounty(name) })),
   };
 }

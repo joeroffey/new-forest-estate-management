@@ -1,3 +1,5 @@
+import { site } from "@/lib/site";
+
 export interface Faq {
   q: string;
   a: string;
@@ -28,11 +30,13 @@ export interface Service {
   intro: string[];
   sections: ContentSection[];
   faqs: Faq[];
+  /** Guest reviews to show on the page, by reviewer name (see content/reviews.ts). */
+  reviews?: string[];
 }
 
 /**
- * The three services. Edit the wording here and the home page, services page, each
- * service's own page, the sitemap and the search engine data all update together.
+ * The services. Edit the wording here and the home page, services page, each service's
+ * own page, the footer, the sitemap and the search engine data all update together.
  */
 export const SERVICES: Service[] = [
   {
@@ -68,6 +72,8 @@ export const SERVICES: Service[] = [
           "Laundry and linen, so beds are freshly made and towels are ready",
           "Beds set up for each group, whether that's twins, doubles or an extra bed",
           "Extras such as travel cots, high chairs, dog beds and welcome packs",
+          "Welcome food hampers for guests, if you'd like to offer them",
+          "Windows cleaned inside and out by a professional window cleaning company",
           "Maintenance and repairs, reported to you and arranged",
           "Help advertising your property",
           "An online account for your bookings, and one invoice a month",
@@ -124,11 +130,232 @@ export const SERVICES: Service[] = [
       },
       {
         q: "Which areas do you cover?",
-        a: "We're based in Barton on Sea and look after holiday lets across the New Forest and the coast, including Lymington, Milford on Sea, Keyhaven, New Milton, Highcliffe, Christchurch, Brockenhurst, Sway, Lyndhurst, Beaulieu and Burley. If you're not sure whether we cover your area, give us a call.",
+        a: "We're based in Barton on Sea and look after holiday lets across the New Forest and the coast, including Lymington, Milford on Sea, Keyhaven, New Milton, Highcliffe, Christchurch, Mudeford, Bournemouth, Brockenhurst, Sway, Lyndhurst, Beaulieu and Burley. If you're not sure whether we cover your area, give us a call.",
+      },
+      {
+        q: "Can I just have the cleaning?",
+        a: "Yes. If you take your own bookings and only need changeovers, cleaning and laundry, see our holiday let cleaning service. You can add more later.",
       },
       {
         q: "Do I need to live locally?",
         a: "No. Many of the owners we work with live elsewhere. Your online account shows every booking and invoice, and we keep you informed whenever something needs a decision.",
+      },
+    ],
+  },
+  {
+    slug: "holiday-let-cleaning",
+    href: "/services/holiday-let-cleaning",
+    title: "Holiday Let Cleaning & Changeovers",
+    short: "holiday let cleaning",
+    summary:
+      "We clean your holiday home so you don't have to. Every changeover follows a detailed checklist, beds are made with freshly ironed linen, and same-day turnarounds are no problem, whoever takes your bookings.",
+    included: [
+      "Changeover cleans to a detailed checklist",
+      "Same-day changeovers",
+      "Laundry and freshly ironed linen",
+      "Deep cleans",
+      "Window cleaning, inside and out",
+      "Welcome food hampers for guests",
+    ],
+    metaTitle: "Holiday Let Cleaning & Changeovers in the New Forest",
+    metaDescription:
+      "Holiday let cleaning, same-day changeovers and freshly ironed laundry across the New Forest, Christchurch and Mudeford. Formerly New Forest Holiday Cleaning.",
+    serviceType: "Holiday let cleaning",
+    h1: "Holiday let cleaning and changeovers",
+    intro: [
+      "We clean your holiday home so you don't have to. Between every stay the whole property is cleaned to a detailed checklist, the beds are made with freshly ironed linen and everything is reset, so your next guests walk into a home that's spotless and ready.",
+      "New Forest Holiday Cleaning is now part of New Forest Estate Management, with the same local team and the same phone number. We work from our office in Barton on Sea and clean holiday lets across the New Forest, Christchurch, Mudeford, Bournemouth and the surrounding area.",
+    ],
+    sections: [
+      {
+        heading: "A detailed checklist, every time",
+        body: [
+          "We love to clean, and we treat every property as though it were our own, with respect and integrity. Every changeover follows the same detailed checklist, room by room, so the standard never depends on who is cleaning that day. A professional clean keeps your holiday home consistently clean and welcoming, and guests notice: it's the first thing they mention in their reviews.",
+          "A changeover usually includes:",
+        ],
+        list: [
+          "Kitchen and appliances cleaned, and the kitchen reset",
+          "Bathrooms cleaned, with fresh towels put out",
+          "Beds stripped and made up with freshly ironed linen",
+          "Floors vacuumed and mopped throughout",
+          "Bins emptied and the rubbish taken away",
+          "Anything broken, missing or left behind reported to you",
+        ],
+      },
+      {
+        heading: "Same-day changeovers",
+        body: [
+          "Same-day turnarounds, where one group leaves in the morning and the next arrives that afternoon, help you make the most of your rental income. We plan each day around your check-out and check-in times, and our cleaning plan puts the day's cleans in order by those times and by location, so the team spends its time cleaning rather than driving and every clean is finished before the next guests arrive.",
+        ],
+      },
+      {
+        heading: "Laundry and freshly ironed linen",
+        body: [
+          "We take care of the laundry between stays, so every bed is made with freshly washed and ironed bedding and fresh towels are ready for each group. It's one of the small things guests remember.",
+        ],
+      },
+      {
+        heading: "Deep cleans",
+        body: [
+          "Even with careful changeovers, a busy holiday home benefits from a deeper clean from time to time: before the season starts, at the end of a busy summer, or after building work. A deep clean goes further than a changeover, into the cupboards and appliances, behind and under the furniture, and into the corners a changeover doesn't have time for. We do end of tenancy cleans too.",
+        ],
+      },
+      {
+        heading: "Windows, maintenance and urgent repairs",
+        body: [
+          "Windows are cleaned inside and out by a professional window cleaning company. If we spot something that needs fixing during a clean, we tell you and, with your agreement, get it sorted. And when something goes wrong, there's a 24/7 contact for urgent repairs, so problems are dealt with quickly rather than left for the next changeover.",
+        ],
+      },
+      {
+        heading: "Welcome hampers for your guests",
+        body: [
+          "Offering guests a food hamper shows you have their comfort in mind. Guests can choose from several hamper options, so there's food and drink waiting when they arrive, even if they get in late after a long journey.",
+        ],
+      },
+      {
+        heading: "Book changeovers online",
+        body: [
+          "Every owner gets their own online account. Add each stay with the dates, the number of guests and dogs and how the beds should be set up, and the cleaning team is told straight away, along with any changes or cancellations. Bookings from Airbnb, Booking.com, holiday cottage agencies and your own guests all go in the same place, and you receive one clear invoice a month.",
+        ],
+      },
+      {
+        heading: "Cleaning only, or the whole job",
+        body: [
+          "Many owners take their own bookings, or let through an agency, and just need a reliable team for the cleaning and changeovers. Others would rather hand over everything. You can start with cleaning and add more later: our holiday let management also covers maintenance and help advertising your property.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "What happened to New Forest Holiday Cleaning?",
+        a: `New Forest Holiday Cleaning has always been part of the New Forest Estate Management group, and it's now run under the New Forest Estate Management name. It's the same local team and the same phone number, ${site.phoneDisplay}, and the old website now brings you here. Owners also get an online account for booking changeovers and seeing their invoices.`,
+      },
+      {
+        q: "What's included in a changeover clean?",
+        a: "The whole property is cleaned to a detailed checklist: the kitchen and appliances, bathrooms, floors and every room, with the beds made up in freshly ironed linen and fresh towels put out. Anything broken, missing or left behind is reported to you.",
+      },
+      {
+        q: "Can you do same-day changeovers?",
+        a: "Yes. We plan each day around your check-out and check-in times, so the clean is finished before the next guests arrive. Same-day turnarounds are flagged as soon as the bookings are entered.",
+      },
+      {
+        q: "Do you do the laundry?",
+        a: "Yes. We take care of the laundry between stays, so beds are made with freshly washed and ironed linen and fresh towels are ready for every group.",
+      },
+      {
+        q: "Do you clean holiday lets booked through other agencies?",
+        a: "Yes. Whoever takes your bookings, whether that's Airbnb, Booking.com, a holiday cottage agency or you, we can do the cleaning and changeovers. You add the stays to your online account, so we always know when guests are leaving and arriving.",
+      },
+      {
+        q: "Do you clean dog-friendly holiday lets?",
+        a: "Yes. Tell us how many dogs are coming when you add a booking, and we'll allow for them in the clean.",
+      },
+      {
+        q: "How much does holiday let cleaning cost?",
+        a: "It depends on the size of the property, how often it's let and what you'd like us to do, so we give you a clear, no-obligation quote. Tell us how many bedrooms the property has when you get in touch.",
+      },
+      {
+        q: "Which areas do you cover?",
+        a: "We're based in Barton on Sea and clean holiday lets across the New Forest and along the coast, including Christchurch, Mudeford, Bournemouth, Highcliffe, New Milton, Milford on Sea, Lymington and Brockenhurst. If you're not sure whether we cover your area, give us a call.",
+      },
+    ],
+    reviews: ["Warren", "Jenny", "Charlotte"],
+  },
+  {
+    slug: "end-of-tenancy-cleaning",
+    href: "/services/end-of-tenancy-cleaning",
+    title: "End of Tenancy & Deep Cleaning",
+    short: "end of tenancy cleaning",
+    summary:
+      "We specialise in end of tenancy cleaning. We clean to the same five-star standard as our holiday lets, so a property is left in A1 condition, ready for the inspection and whoever comes next.",
+    included: [
+      "End of tenancy cleans",
+      "Deep cleans for holiday lets and homes",
+      "Every room cleaned from top to bottom",
+      "A checklist agreed with you before we start",
+      "Left in A1 condition",
+    ],
+    metaTitle: "End of Tenancy & Deep Cleaning in the New Forest",
+    metaDescription:
+      "End of tenancy and deep cleaning for landlords, letting agents, tenants and holiday let owners across the New Forest, Christchurch and Bournemouth.",
+    serviceType: "End of tenancy cleaning",
+    h1: "End of tenancy and deep cleaning",
+    intro: [
+      "We specialise in end of tenancy cleaning. Cleaning holiday lets to a five-star standard has taught us exactly how a property should be left: in A1 condition, ready for the check-out inspection and the next people through the door.",
+      "We clean for landlords, letting agents and tenants moving out, and we deep clean holiday lets and homes, across the New Forest, Christchurch, Bournemouth and the surrounding area.",
+    ],
+    sections: [
+      {
+        heading: "Who we clean for",
+        body: ["End of tenancy and deep cleans are booked by:"],
+        list: [
+          "Landlords between tenancies",
+          "Letting agents getting a property ready for check-out or a new tenant",
+          "Tenants moving out who want the property left as they found it",
+          "Holiday let owners before the season, or after a busy summer",
+          "Owners getting a home ready to sell, or cleaning up after building work",
+        ],
+      },
+      {
+        heading: "What an end of tenancy clean covers",
+        body: [
+          "Every property is different, so we agree a checklist with you before we start, working from the inventory if there is one. A typical end of tenancy clean covers:",
+        ],
+        list: [
+          "The kitchen: worktops, cupboards inside and out, the hob, oven and extractor, and the fridge and freezer",
+          "Bathrooms: baths, showers, basins and toilets cleaned and descaled, with tiles and glass polished",
+          "Every room: skirting boards, doors, handles, light switches and sockets wiped down",
+          "Windows cleaned on the inside, with the sills and frames",
+          "Floors vacuumed and mopped throughout",
+        ],
+      },
+      {
+        heading: "Deep cleans",
+        body: [
+          "A deep clean gives a property a fresh start. It goes further than a regular clean or a changeover: inside the cupboards and appliances, behind and under the furniture, and into all the corners that get missed. Holiday let owners often book one before the season starts or at the end of a busy summer, and homeowners book them before moving in, before a sale or after building work.",
+        ],
+      },
+      {
+        heading: "Why the holiday let standard matters",
+        body: [
+          "Holiday guests notice everything, and they say so in their reviews. Cleaning to that standard week in, week out is what we do, so a property we've cleaned at the end of a tenancy is ready for whoever comes next, whether that's a new tenant, an inventory clerk or a buyer.",
+        ],
+      },
+      {
+        heading: "Booking a clean",
+        body: [
+          "Call us or send a message with the address, the number of bedrooms and when you need the clean, and we'll give you a no-obligation quote. If a check-out inspection is booked, tell us the date and we'll plan the clean around it.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "What is an end of tenancy clean?",
+        a: "A thorough clean of the whole property when a tenancy ends, so it's handed back in the condition it was let in and is ready for the next tenant. We agree the checklist with you first, using the inventory if there is one.",
+      },
+      {
+        q: "Do you clean for tenants as well as landlords?",
+        a: "Yes. We clean for landlords, letting agents and tenants who are moving out.",
+      },
+      {
+        q: "What's the difference between a deep clean and a regular clean?",
+        a: "A deep clean goes further: inside the cupboards and appliances, behind and under the furniture, and into the corners a regular clean or changeover doesn't reach. It's ideal before a holiday season, before moving in or after building work.",
+      },
+      {
+        q: "Do I need to be there?",
+        a: "No. Many people leave us a key or arrange access through their letting agent. Just tell us how we'll get in.",
+      },
+      {
+        q: "How long does an end of tenancy clean take?",
+        a: "It depends on the size and condition of the property. We'll give you an idea when we quote, and plan the clean around your moving date and any inspection.",
+      },
+      {
+        q: "How much does an end of tenancy clean cost?",
+        a: "It depends on the size and condition of the property, so we give you a clear, no-obligation quote. Tell us the address and the number of bedrooms when you get in touch.",
+      },
+      {
+        q: "Which areas do you cover?",
+        a: "The New Forest and the coast, including Barton on Sea, New Milton, Milford on Sea, Lymington, Highcliffe, Christchurch, Mudeford and Bournemouth. If you're not sure whether we cover your area, give us a call.",
       },
     ],
   },

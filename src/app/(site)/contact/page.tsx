@@ -7,7 +7,7 @@ import { ContactForm } from "./contact-form";
 
 export const metadata = pageMetadata({
   title: "Contact New Forest Estate Management, Barton on Sea",
-  description: `Talk to us about holiday let, estate or commercial property management. Call ${site.phoneDisplay} or send a message to our Barton on Sea office.`,
+  description: `Ask about holiday let cleaning, end of tenancy cleans or property management, or a stay in one of our holiday homes. Call ${site.phoneDisplay}.`,
   path: "/contact",
 });
 
@@ -23,7 +23,8 @@ export default function ContactPage() {
         Get in touch
       </h1>
       <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-        Tell us about your property and what you need. We&apos;re happy to arrange a visit during office hours.
+        Tell us about your property and what you need, and we&apos;ll give you a no-obligation quote. We&apos;re
+        happy to arrange a visit during office hours.
       </p>
       <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <ContactForm />

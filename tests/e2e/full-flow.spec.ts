@@ -1,5 +1,6 @@
 import { test, expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import fs from "node:fs";
+import http from "node:http";
 
 /*
  * End-to-end test of the whole system against a real (local) Supabase,
@@ -61,6 +62,18 @@ function londonDate(offsetDays: number): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
+/** A request as if made to another domain pointed at this site (fetch won't let you set the Host header). */
+function getWithHost(path: string, host: string): Promise<{ status: number; location: string }> {
+  return new Promise((resolve, reject) => {
+    const req = http.request({ host: "127.0.0.1", port: 3000, path, method: "GET", headers: { Host: host } }, (res) => {
+      res.resume();
+      resolve({ status: res.statusCode ?? 0, location: String(res.headers.location ?? "") });
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
+
 async function shot(page: Page, name: string) {
   await page.waitForLoadState("networkidle").catch(() => undefined);
   await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
@@ -119,12 +132,16 @@ test.describe.serial("New Forest Estate Management", () => {
       ["/contact", /Get in touch/],
       ["/privacy", /Privacy notice/],
       ["/services/holiday-rental-management", /Holiday let management in the New Forest/],
+      ["/services/holiday-let-cleaning", /Holiday let cleaning and changeovers/],
+      ["/services/end-of-tenancy-cleaning", /End of tenancy and deep cleaning/],
       ["/services/estate-management", /Property and estate management in the New Forest/],
       ["/services/commercial-property-management", /Commercial property management/],
       ["/areas/lymington", /in Lymington/],
       ["/areas/milford-on-sea", /in Milford on Sea/],
       ["/areas/new-milton-barton-on-sea", /in New Milton and Barton on Sea/],
       ["/areas/brockenhurst", /in Brockenhurst/],
+      ["/areas/christchurch-mudeford", /in Christchurch and Mudeford/],
+      ["/holiday-homes", /Holiday homes in the New Forest and by the sea/],
     ] as const) {
       const res = await page.goto(path);
       expect(res?.status(), path).toBe(200);
@@ -141,7 +158,29 @@ test.describe.serial("New Forest Estate Management", () => {
     const old = await page.request.get("/contact-us", { maxRedirects: 0 });
     expect(old.status()).toBe(308);
     expect(old.headers()["location"]).toMatch(/\/contact$/);
-    expect((await page.request.get("/llms.txt")).status()).toBe(200);
+    // New Forest Holiday Cleaning's old website: every old page goes to its closest new page,
+    // on both www. and the bare domain. The same paths on this site are left alone.
+    for (const host of ["www.newforestholidaycleaning.co.uk", "newforestholidaycleaning.co.uk"]) {
+      for (const [from, to] of [
+        ["/", "/services/holiday-let-cleaning"],
+        ["/home", "/services/holiday-let-cleaning"],
+        ["/services", "/services/holiday-let-cleaning"],
+        ["/holiday-properties", "/holiday-homes"],
+        ["/about", "/about"],
+        ["/contact", "/contact"],
+        ["/a-page-that-never-existed", "/services/holiday-let-cleaning"],
+        ["/robots.txt", "/services/holiday-let-cleaning"],
+      ]) {
+        const res = await getWithHost(from, host);
+        expect(res.status, `${host}${from}`).toBe(308);
+        expect(res.location, `${host}${from}`).toBe(`http://localhost:3000${to}`);
+      }
+    }
+    expect((await getWithHost("/services", "localhost:3000")).status).toBe(200);
+    expect((await getWithHost("/", "localhost:3000")).status).toBe(200);
+    const llms = await page.request.get("/llms.txt");
+    expect(llms.status()).toBe(200);
+    expect(await llms.text()).toContain("New Forest Holiday Cleaning");
     const faqs = page.locator("details");
     await page.goto("/services/holiday-rental-management");
     expect(await faqs.count()).toBeGreaterThan(3);
@@ -150,6 +189,17 @@ test.describe.serial("New Forest Estate Management", () => {
     await shot(page, "02b-service-page");
     await page.goto("/areas/lymington");
     await shot(page, "02c-area-page");
+    await page.goto("/services/holiday-let-cleaning");
+    await expect(page.getByText("Pippa and her team")).toBeVisible();
+    await shot(page, "02e-cleaning-service");
+    await page.goto("/services/end-of-tenancy-cleaning");
+    await shot(page, "02f-end-of-tenancy");
+    await page.goto("/areas/christchurch-mudeford");
+    await shot(page, "02g-christchurch-mudeford");
+    await page.goto("/holiday-homes");
+    await expect(page.getByRole("heading", { name: "Cherry Tree Cottage" })).toBeVisible();
+    await expect(page.locator("figure blockquote")).toHaveCount(6);
+    await shot(page, "02h-holiday-homes");
     await page.goto("/about");
     await shot(page, "02d-about");
     await page.goto("/");
@@ -165,6 +215,9 @@ test.describe.serial("New Forest Estate Management", () => {
     await m.goto("/");
     await m.waitForTimeout(2600);
     await shot(m, "04-home-mobile");
+    await m.goto("/holiday-homes");
+    await shot(m, "04b-holiday-homes-mobile");
+    await m.goto("/");
     await m.getByRole("button", { name: "Open menu" }).click();
     await expect(m.getByRole("link", { name: "Owner login" }).last()).toBeVisible();
     await shot(m, "05-home-mobile-menu");
@@ -650,6 +703,30 @@ test.describe.serial("New Forest Estate Management", () => {
     // The person who sent it gets a short acknowledgement with a copy of their message.
     const ack = await waitForEmail("carol@example.com", /Thanks for getting in touch/);
     expect(ack.text).toContain("cottage in Burley");
+  });
+
+  test("a holiday home enquiry arrives with the home and bedrooms filled in", async () => {
+    const page = adminPage;
+    await page.goto("/holiday-homes");
+    await page.getByRole("article").filter({ hasText: "Cherry Tree Cottage" }).getByRole("link", { name: "Ask about dates" }).click();
+    await expect(page).toHaveURL(/\/contact\?service=holiday-homes&home=cherry-tree-cottage/);
+    await expect(page.locator('select[name="service"]')).toHaveValue("Staying in one of your holiday homes");
+    await expect(page.locator('textarea[name="message"]')).toHaveValue(/staying at Cherry Tree Cottage/);
+    await page.waitForTimeout(2700);
+    await page.locator('input[name="name"]').fill("Dan Guest");
+    await page.locator('input[name="email"]').fill("dan@example.com");
+    await page.locator('select[name="bedrooms"]').selectOption("4 bedrooms");
+    await page.locator('textarea[name="message"]').fill("I'd like to ask about staying at Cherry Tree Cottage. Dates: 3 to 10 July. Four adults and a dog.");
+    await page.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByText("Message sent")).toBeVisible();
+    const mail = await waitForEmail("team@example.com", /Website enquiry: Dan Guest \(Staying in one of your holiday homes\)/);
+    expect(mail.text).toContain("Cherry Tree Cottage");
+    expect(mail.text).toContain("Bedrooms: 4 bedrooms");
+
+    // A cleaning service page's button chooses that service on the form
+    await page.goto("/services/end-of-tenancy-cleaning");
+    await page.getByRole("link", { name: "Ask for a quote" }).click();
+    await expect(page.locator('select[name="service"]')).toHaveValue("End of tenancy or deep clean");
   });
 
   test("every email is saved for review", async ({ browser }) => {
