@@ -19,28 +19,33 @@ export default function HomePage() {
   return (
     <>
       {/* ------------------------------------------------------------- Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-5 pt-8 sm:px-8 md:pt-14">
-          <h1 className="max-w-[17ch] animate-rise font-serif text-[clamp(2.5rem,6.2vw,5.25rem)] leading-[1.02] font-[350] tracking-[-0.03em] text-forest-deep">
+      {/* On phones the hero fills the first screen (below the 84px header), with the drawing pinned
+          to the bottom so it's in view as it draws itself. svh = the screen with the browser bars showing. */}
+      <section
+        data-testid="hero"
+        className="relative flex min-h-[calc(100svh-5.25rem)] flex-col overflow-hidden sm:block sm:min-h-0"
+      >
+        <div className="mx-auto w-full max-w-7xl px-5 pt-4 pb-5 sm:px-8 sm:pt-8 sm:pb-0 md:pt-14">
+          <h1 className="max-w-[17ch] animate-rise font-serif text-[clamp(2rem,min(9vw,5svh),2.75rem)] leading-[1.02] font-[350] tracking-[-0.03em] text-forest-deep sm:text-[clamp(2.5rem,6.2vw,5.25rem)]">
             Holiday lets and estates across the New Forest, properly looked after.
           </h1>
-          <div className="mt-7 grid gap-8 md:grid-cols-[minmax(0,34rem)_auto] md:items-end md:justify-between">
-            <p className="animate-rise text-lg leading-relaxed text-ink-soft [animation-delay:120ms]">
+          <div className="mt-5 grid gap-6 sm:mt-7 sm:gap-8 md:grid-cols-[minmax(0,34rem)_auto] md:items-end md:justify-between">
+            <p className="animate-rise text-base leading-[1.6] text-ink-soft [animation-delay:120ms] sm:text-lg sm:leading-relaxed">
               From the clean between guests to the long-term care of estates and commercial buildings, we manage
               property from our office in Barton on Sea. Owners book changeovers and see every invoice in their own
               online account.
             </p>
-            <div className="flex animate-rise flex-wrap gap-3 [animation-delay:220ms]">
-              <ButtonLink href="/contact" size="lg">
+            <div className="flex animate-rise flex-wrap gap-2.5 [animation-delay:220ms] sm:gap-3">
+              <ButtonLink href="/contact" size="lg" className="max-sm:h-11 max-sm:w-full">
                 Talk to us about your property
               </ButtonLink>
-              <ButtonLink href="/login" size="lg" variant="secondary">
+              <ButtonLink href="/login" size="lg" variant="secondary" className="max-sm:h-11 max-sm:w-full">
                 Owner login
               </ButtonLink>
             </div>
           </div>
         </div>
-        <Landscape className="mt-10 block h-auto w-full min-w-[720px] -translate-x-[8%] sm:min-w-0 sm:translate-x-0 md:mt-6" />
+        <Landscape className="mt-auto block h-auto w-full min-w-[560px] shrink-0 -translate-x-[8%] sm:mt-10 sm:min-w-0 sm:translate-x-0 md:mt-6" />
       </section>
 
       {/* --------------------------------------------------------- Services */}

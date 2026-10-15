@@ -215,6 +215,30 @@ test.describe.serial("New Forest Estate Management", () => {
     await m.goto("/");
     await m.waitForTimeout(2600);
     await shot(m, "04-home-mobile");
+    // On phones the hero's landscape drawing sits fully inside the first screen, so it's seen drawing
+    // itself. Sizes: an iPhone with Safari's bars showing, and a typical Android phone in Chrome.
+    for (const [width, height] of [
+      [390, 664],
+      [412, 780],
+    ] as const) {
+      const ctx = await browser.newContext({
+        viewport: { width, height },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+        baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+      });
+      const p = await ctx.newPage();
+      await p.goto("/");
+      const drawing = await p.locator('[data-testid="hero"] > svg').boundingBox();
+      expect(drawing, `${width}x${height}`).not.toBeNull();
+      expect(drawing!.y + drawing!.height, `drawing bottom at ${width}x${height}`).toBeLessThanOrEqual(height + 1);
+      expect(drawing!.y, `drawing top at ${width}x${height}`).toBeGreaterThan(height / 2);
+      await p.waitForTimeout(2600);
+      await p.screenshot({ path: `${SHOTS}/04a-home-first-screen-${width}x${height}.png` });
+      await ctx.close();
+    }
+
     await m.goto("/holiday-homes");
     await shot(m, "04b-holiday-homes-mobile");
     await m.goto("/");
